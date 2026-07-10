@@ -1,0 +1,14 @@
+{
+  "name": "vinnie-tools",
+  "owner": {
+    "name": "Vinnie",
+    "email": "[redacted]"
+  },
+  "plugins": [
+    {
+      "name": "dev-pipeline",
+      "source": "./plugins/dev-pipeline",
+      "description": "Plan-build-verify agent pipeline: competing planners (plan-speed, plan-extensible), a reconciling judge, builder, and verifier, orchestrated by the dev-pipeline-* skills."
+    }
+  ]
+}
