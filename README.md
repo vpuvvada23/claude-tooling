@@ -1,7 +1,7 @@
 # claude-tooling
 
 Personal Claude Code plugin marketplace (`vinnie-tools`). Project-agnostic
-dev tooling shared across projects ([origin project], [another project], …).
+dev tooling shared across projects.
 
 ## Plugins
 
@@ -23,5 +23,3 @@ Plan-build-verify agent pipeline:
 /plugin marketplace add vinnie/claude-tooling     # or the local path ~/dev/claude-tooling
 /plugin install dev-pipeline@vinnie-tools
 ```
-
-Extracted from the [origin project] repo (origin commit 23426f7).
