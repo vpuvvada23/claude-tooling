@@ -1,7 +1,7 @@
 ---
 name: plan-judge
 description: Reconciles the plan-speed and plan-extensible drafts into one final implementation spec for the dev-pipeline-full.
-model: claude-fable-5
+model: claude-opus-4-8
 effort: high
 ---
 
