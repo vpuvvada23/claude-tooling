@@ -10,7 +10,7 @@ description: Builds and verifies a feature from an existing pipeline run spec. T
 ## Purpose
 Pick up an existing pipeline run after planning is done. Reads the reconciled spec produced
 by dev-pipeline-plan (or dev-pipeline-full), runs the builder against it, then the verifier,
-and presents the final summary for Vinnie's review.
+and presents the final summary for the user's review.
 
 ## Instructions
 
@@ -21,20 +21,20 @@ If not already given, ask for the run name. It must correspond to an existing fo
 ### Step 2 — Load and validate the spec
 Read .claude/pipeline-runs/<run-name>/spec.md.
 
-**If spec.md does not exist: STOP.** Tell Vinnie clearly:
+**If spec.md does not exist: STOP.** Tell the user clearly:
 > "No spec found at .claude/pipeline-runs/<run-name>/spec.md. Run dev-pipeline-plan first
 > to generate a spec, or check that the run name is correct."
 Do not proceed, do not improvise a plan, do not look for alternatives.
 
 **If spec.md exists but appears to be a partial or conflict-halted output** (e.g. ends with
-an unresolved conflict summary rather than a resolved spec): STOP and flag it to Vinnie.
+an unresolved conflict summary rather than a resolved spec): STOP and flag it to the user.
 
 ### Step 3 — Dispatch the builder
 Call the builder subagent with the full contents of spec.md.
 Save output to:
 - .claude/pipeline-runs/<run-name>/change-summary.md
 
-The builder stages git commands in change-summary.md only — it does NOT run them.
+The builder does not stage, commit, or push anything — it only writes a change summary.
 
 ### Step 4 — Dispatch the verifier
 Call the verifier subagent with both spec.md and change-summary.md.
@@ -42,13 +42,13 @@ Save output to:
 - .claude/pipeline-runs/<run-name>/verification.md
 
 **If the verifier reports FAIL: do NOT re-dispatch the builder automatically.** Present the
-findings to Vinnie and let him decide: fix via a new builder dispatch, amend the spec, or
+findings to the user and let them decide: fix via a new builder dispatch, amend the spec, or
 abandon the run.
 
-### Step 5 — Present final summary to Vinnie
-Do NOT commit anything. Present a brief summary:
+### Step 5 — Present final summary to the user
+Do NOT commit or push anything. Present a brief summary:
 - Files changed (from change-summary.md)
 - Verifier verdict and any manual steps required (from verification.md)
 - Locations of all artifacts: spec.md, change-summary.md, verification.md
-- Remind Vinnie that ready-to-copy git commands are in change-summary.md — he runs
-  these himself after review (push main first, then merge to production)
+- Let the user know they can commit and push these changes themselves once they've reviewed
+  everything

@@ -23,7 +23,7 @@ Your job:
    neither plan addressed.
 5. Only STOP and halt for human input if the two plans propose fundamentally INCOMPATIBLE
    architectures — not just different implementation choices — where resolving it yourself would
-   require guessing at Vinnie's actual priorities. This should be rare. Do not halt for ordinary
+   require guessing at the user's actual priorities. This should be rare. Do not halt for ordinary
    speed-vs-extensibility tradeoffs; that's what the bias in step 2 is for.
 
 Output the final spec as markdown: Summary, Final approach, Files to touch, Step-by-step plan,

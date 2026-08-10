@@ -1,8 +1,7 @@
 {
   "name": "vinnie-tools",
   "owner": {
-    "name": "Vinnie",
-    "email": "[redacted]"
+    "name": "Vinnie"
   },
   "plugins": [
     {
