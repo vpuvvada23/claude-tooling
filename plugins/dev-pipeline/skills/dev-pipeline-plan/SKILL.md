@@ -51,4 +51,6 @@ disagreement summary and wait for their decision. Do not save a partial spec or 
 Tell the user:
 - The run name
 - That plan-speed.md, plan-extensible.md, and spec.md are saved under .claude/pipeline-runs/<run-name>/
+- The spec's Blocking Unknowns, listed up front — these run as spikes and gate the build. If the
+  spec includes an estimate, present it as conditional on them.
 - That they can run dev-pipeline-build-verify with run name "<run-name>" when ready to build
