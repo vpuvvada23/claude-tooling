@@ -58,7 +58,24 @@ change what actually ran. Token counts exclude the orchestrating session.
 
 ## Install
 
+Run these inside Claude Code (not a shell):
+
 ```
-/plugin marketplace add vinnie/claude-tooling     # or the local path ~/dev/claude-tooling
+/plugin marketplace add vpuvvada23/claude-tooling     # or the local path ~/dev/claude-tooling
 /plugin install dev-pipeline@vinnie-tools
 ```
+
+`vinnie-tools` is the marketplace name from `.claude-plugin/marketplace.json`,
+not a GitHub user.
+
+**Private repo access.** The repository is private. Claude Code clones it with
+your normal git credentials (SSH key, `gh auth login`, or a credential helper),
+so anyone installing it needs read access (be added as a collaborator) and
+working GitHub credentials. Background auto-updates may need a token such as
+`GITHUB_TOKEN` in the environment; if updates don't arrive, run
+`/plugin marketplace update vinnie-tools` manually.
+
+**Requirements**
+
+- Claude Code v2.1.292 or later (for per-run `--agents` overrides).
+- Add `.claude/pipeline-runs/` to each project's `.gitignore`.
