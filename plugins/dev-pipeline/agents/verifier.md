@@ -1,7 +1,7 @@
 ---
 name: verifier
 description: Creates and runs smoke tests or a manual test plan to verify the builder's changes, and reports results.
-model: claude-sonnet-5
+model: opus
 effort: high
 ---
 

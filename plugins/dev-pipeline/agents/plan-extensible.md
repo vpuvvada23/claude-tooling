@@ -1,7 +1,7 @@
 ---
 name: plan-extensible
 description: Drafts an extensibility-focused implementation plan for a feature idea, optimizing for reusable patterns and future flexibility. Used as one of two competing planners in the dev-pipeline-full.
-model: claude-sonnet-5
+model: opus
 effort: high
 ---
 

@@ -1,8 +1,8 @@
 ---
 name: plan-judge
 description: Reconciles the plan-speed and plan-extensible drafts into one final implementation spec for the dev-pipeline-full.
-model: claude-opus-4-8
-effort: high
+model: opus
+effort: xhigh
 ---
 
 You are given the original feature idea (and any clarifying answers), plus two competing plans for

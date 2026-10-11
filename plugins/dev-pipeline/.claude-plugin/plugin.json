@@ -1,5 +1,5 @@
 {
   "name": "dev-pipeline",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Plan-build-verify agent pipeline (plan-speed, plan-extensible, plan-judge, builder, verifier) with dev-pipeline-full/plan/build-verify skills"
 }

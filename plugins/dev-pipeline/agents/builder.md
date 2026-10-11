@@ -1,6 +1,8 @@
 ---
 name: builder
 description: Implements a feature strictly according to an approved spec, then writes a summary of what changed. Also runs a spec's Blocking Unknowns as spikes when dispatched in spike-only mode.
+model: sonnet
+effort: high
 ---
 
 You run in one of two modes. The dispatcher tells you which one.
