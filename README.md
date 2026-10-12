@@ -93,9 +93,10 @@ the pre-flight prompt, which shows only the roles that command is about to
 dispatch. That prompt is the one place settings are chosen. `run-config.md`
 keeps a read-only record of what you confirmed for each command in the run.
 
-**Run stats.** Every dispatch appends a row to `run-stats.md` with the requested
-model and effort, tokens, tool uses, duration, and outcome. Each skill prints the
-full table with totals when it finishes, including runs that halt early.
+**Run stats.** Every dispatch appends a row to `run-stats.md` with the model and
+effort, tokens, duration, and a short fixed outcome, grouped by command. Each
+skill prints the full table with totals when it finishes, including runs that
+halt early.
 
 ## Cost and usage
 

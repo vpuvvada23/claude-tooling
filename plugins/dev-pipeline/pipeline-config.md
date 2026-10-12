@@ -89,31 +89,55 @@ including the spike-only builder pass. Don't rely on frontmatter or the session.
 
 ## Run stats
 
-After each dispatch completes, append one row to `.claude/pipeline-runs/<run-name>/run-stats.md`
-(create it with the header if missing):
+After each dispatch completes, record it in `.claude/pipeline-runs/<run-name>/run-stats.md`. It's
+a read-only record, like run-config.md. If the file doesn't exist, create it with this header:
 
 ```
-| Role | Model (requested) | Effort (requested) | Tokens | Tool uses | Duration | Outcome | Completed |
-|---|---|---|---|---|---|---|---|
+# Run stats: <run-name>
+
+What each agent dispatch in this run cost and what it produced, one row per dispatch.
+Model and effort are the settings the pipeline asked for. The runtime can override them
+without reporting it, so treat them as requested, not guaranteed.
 ```
 
-- Tokens, tool uses, and duration come from the dispatch's completion usage (`subagent_tokens`,
-  `tool_uses`, `duration_ms`). Format duration as `Xm Ys` and tokens as e.g. `48.2k`. If usage
-  wasn't reported, write `n/a`. Never estimate.
-- Outcome: a short result — e.g. `spec written`, `halted: conflict`, `ALL CONFIRMED`,
-  `GATE BLOCKED (BU-1)`, `PASS`, `UNCONFIRMED`, `FAIL`, `error`.
-- Completed: local date and time.
-- Every dispatch gets its own row, including re-dispatches after a FAIL. Never overwrite earlier
-  rows.
+When recording an invocation's first dispatch, first append a section heading for that
+invocation (same format as run-config.md). Then append one row per dispatch under it, with the columns padded
+so the table lines up as plain text:
 
-Model and effort are what was **requested**. The runtime can change them without reporting it: an
-environment variable such as `CLAUDE_CODE_EFFORT_LEVEL` or `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, an
-org model allowlist, or effort clamping. Say so if the user asks.
+```
+## dev-pipeline-plan · 2026-10-12 09:14
+
+| Role            | Model | Effort | Tokens | Duration | Outcome      | Completed |
+|-----------------|-------|--------|--------|----------|--------------|-----------|
+| plan-speed      | opus  | high   | 145.3k | 7m 39s   | plan written | 09:21     |
+| plan-extensible | opus  | high   | 186.1k | 11m 37s  | plan written | 09:25     |
+```
+
+Re-pad the section's earlier rows if a new row is wider.
+
+- Tokens and duration come from the dispatch's completion usage (`subagent_tokens`,
+  `duration_ms`). Format tokens as e.g. `48.2k` and duration as `Xm Ys`. If usage wasn't
+  reported, write `n/a`. Never estimate.
+- Outcome: exactly one value from this list for the role, with no extra detail (put details like
+  which plan a planner preferred in its own output file, not here):
+
+  | Role                 | Outcome values                                  |
+  |----------------------|-------------------------------------------------|
+  | plan-speed           | `plan written`, `error`                         |
+  | plan-extensible      | `plan written`, `error`                         |
+  | plan-judge           | `spec written`, `halted: conflict`, `error`     |
+  | builder (spike-only) | `ALL CONFIRMED`, `GATE BLOCKED (BU-n)`, `error` |
+  | builder              | `built`, `error`                                |
+  | verifier             | `PASS`, `UNCONFIRMED`, `FAIL`, `error`          |
+
+- Completed: local time (`HH:MM`). The section heading carries the date.
+- Every dispatch gets its own row, including re-dispatches after a FAIL. Never edit earlier
+  sections.
 
 ## Final stats table
 
 At the end of every invocation, including ones that halt early, print the full contents of
-run-stats.md (all rows for this run, not only this invocation's) with a **Total** row summing
-tokens, tool uses, and duration. Durations are summed across dispatches, so parallel planners
-count twice. That's the cost, not the wall-clock time. Note that the orchestrating session's
-own tokens are not included.
+run-stats.md (all sections for this run, not only this invocation's), followed by a **Run total**
+line summing tokens and duration across every row. Durations are summed across dispatches, so
+parallel planners count twice. That's the cost, not the wall-clock time. Note that the
+orchestrating session's own tokens are not included.

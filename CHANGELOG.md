@@ -1,5 +1,10 @@
 # Changelog
 
+## dev-pipeline 0.3.2
+- `run-stats.md` gets an explanatory header, a section per command, and aligned tables.
+- Dropped the Tool uses column and the "(requested)" labels; the header explains that model and effort are what was requested.
+- Outcome uses a fixed set of values per role, with no extra commentary.
+
 ## dev-pipeline 0.3.1
 - The pre-flight table shows only Role, Model, and Effort for the roles the current command will dispatch.
 - `run-config.md` is now a read-only, append-only record with an explanatory header and aligned tables. No command reads settings back from it, and each command chooses its own settings at pre-flight.
