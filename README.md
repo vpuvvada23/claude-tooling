@@ -1,8 +1,10 @@
 # claude-tooling
 
-A Claude Code plugin marketplace (`vinnie-tools`) with **dev-pipeline**: a
-plan → spike → build → verify workflow that runs a feature idea through a panel
-of specialized subagents and leaves a reviewable paper trail of every stage.
+My personal Claude Code plugin marketplace, `vinnie-tools`. A marketplace is
+just a catalog repo that Claude Code can install plugins from. It currently
+holds one plugin, **dev-pipeline**: a plan → spike → build → verify workflow
+that runs a feature idea through a panel of specialized subagents and leaves a
+reviewable paper trail of every stage.
 
 ## What it does
 
@@ -19,7 +21,7 @@ idea ─┬─► plan-speed ──────┐
   unless speed wins clearly. It promotes every unverified, load-bearing
   assumption to a **Blocking Unknown**, with a concrete test and pass criterion.
 - **A spike gate.** Before the full build, the builder runs each Blocking
-  Unknown as a real experiment. If any isn't confirmed with observed evidence,
+  Unknown as a real experiment. If any aren't confirmed with observed evidence,
   the run stops.
 - **A builder** implements the spec exactly and writes a change summary. It
   never stages, commits, or pushes.
@@ -93,6 +95,32 @@ to `run-config.md` and reused by later invocations for the same run.
 model and effort, tokens, tool uses, duration, and outcome. Each skill prints the
 full table with totals when it finishes, including runs that halt early.
 
+## Cost and usage
+
+The defaults favor quality over cost. Five of the six roles run on **Opus**,
+the judge at **xhigh** effort and the rest at **high**. Only the builder runs on
+Sonnet. A full run dispatches five or six agents, so it uses a significant share
+of your plan's usage limits, or API spend if you pay per token. Check
+`run-stats.md` after a run to see where the tokens went.
+
+To cut cost on a routine feature, override per run with `--agents` (syntax in
+[`pipeline-config.md`](plugins/dev-pipeline/pipeline-config.md#per-run-overrides)):
+
+```
+# Everything on Sonnet
+/dev-pipeline-full my-feature --agents all=sonnet <idea>
+
+# Sonnet everywhere, but keep Opus for the judge and the spike gate
+/dev-pipeline-full my-feature --agents all=sonnet,plan-judge=opus,spike=opus <idea>
+
+# Keep the models, lower the effort
+/dev-pipeline-full my-feature --agents all=:medium <idea>
+```
+
+The judge and the spike pass are where a weaker or rushed result costs the
+most, because a missed risk there means building on an unverified premise. Keep
+them strong before economizing anywhere else.
+
 ## Why I built it this way
 
 - **Competing planners, not one.** A single planner tends to anchor on its
@@ -119,8 +147,7 @@ full table with totals when it finishes, including runs that halt early.
 - **Claude Code only.** It relies on Claude Code subagents, plugin path
   variables, and skill arguments. It doesn't run in claude.ai chat or other AI
   coding tools.
-- **Token-heavy by default.** Most agents run on Opus. Use
-  `--agents all=sonnet` (or per-role overrides) to cut cost on routine features.
+- **Token-heavy by default.** See [Cost and usage](#cost-and-usage).
 - **Model and effort are as requested.** Environment variables such as
   `CLAUDE_CODE_EFFORT_LEVEL` or `CLAUDE_CODE_SUBAGENT_MODEL_FORCE`, org model
   allowlists, and effort clamping can change what actually runs. On Bedrock,
