@@ -37,7 +37,7 @@ idea ─┬─► plan-speed ──────┐
   Claude Code subagents, plugin path variables, and skill arguments. It isn't
   designed for claude.ai chat or Cowork.
   v2.1.292+ is required for per-run effort overrides.
-- Add `.claude/pipeline-runs/` to each project's `.gitignore`.
+- Add `.claude/bracket-runs/` to each project's `.gitignore`.
 
 ## Usage
 
@@ -65,7 +65,7 @@ dependencies. What its agents do in your project:
   browsers, `curl` against a local server, and throwaway scripts. Every command
   runs under your Claude Code permission settings.
 - **Modify your code.** The builder implements the approved spec.
-- **Write run files** to `.claude/pipeline-runs/<run-name>/`: `idea.md`,
+- **Write run files** to `.claude/bracket-runs/<run-name>/`: `idea.md`,
   `plan-speed.md`, `plan-extensible.md`, `spec.md`,
   `spike-results.md`, `change-summary.md`, `verification.md`, `run-stats.md`.
 - **Never** stages, commits, or pushes, and never sends data to any service
@@ -74,7 +74,7 @@ dependencies. What its agents do in your project:
 
 ## Models, effort, and cost
 
-Defaults (from [`pipeline-config.md`](pipeline-config.md)):
+Defaults (from [`bracket-config.md`](bracket-config.md)):
 
 | Role | Model | Effort |
 |---|---|---|
@@ -149,7 +149,7 @@ dispatch's tokens, duration, and outcome. Each command prints the stats table wi
 |---|---|
 | Commands or agents don't appear after install | Restart Claude Code. |
 | `--agents` effort overrides seem ignored | Check `claude --version` is v2.1.292+. Check for `CLAUDE_CODE_EFFORT_LEVEL` or `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` in your environment. |
-| Run files show up in `git status` | Add `.claude/pipeline-runs/` to the project's `.gitignore`. |
+| Run files show up in `git status` | Add `.claude/bracket-runs/` to the project's `.gitignore`. |
 | build-verify stops: no Blocking Unknowns section | The spec predates v0.2.0. Re-run `/bracket:plan`, or confirm when prompted. |
 
 ## Disclaimer

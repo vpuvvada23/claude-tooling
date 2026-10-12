@@ -37,8 +37,10 @@ shell), and restart.
 ### Upgrading from dev-pipeline
 
 Bracket was called `dev-pipeline` before v0.4.0. The commands are now
-`/bracket:full`, `/bracket:plan`, and `/bracket:build-verify`. Existing runs in
-`.claude/pipeline-runs/` keep working. To switch:
+`/bracket:full`, `/bracket:plan`, and `/bracket:build-verify`. Run folders moved
+from `.claude/pipeline-runs/` to `.claude/bracket-runs/` in v0.4.2. Commands
+offer to move an old run's folder when you name it. Update your `.gitignore`
+to match. To switch:
 
 ```
 claude plugin uninstall dev-pipeline@vinnie-tools

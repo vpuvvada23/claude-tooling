@@ -54,6 +54,14 @@ Show it in the same message as any clarifying questions, and ask the user to con
 change it. Don't dispatch anything until they've confirmed. This is the user's only chance to
 change settings for the invocation.
 
+## Run folder
+
+Each run lives in `.claude/bracket-runs/<run-name>/`. Before 0.4.2, runs lived in
+`.claude/pipeline-runs/`. If the run name's folder isn't in `.claude/bracket-runs/` but exists at
+`.claude/pipeline-runs/<run-name>/`, tell the user and offer to move it (`mkdir -p
+.claude/bracket-runs && mv .claude/pipeline-runs/<run-name> .claude/bracket-runs/`). Don't move it
+without their confirmation, and don't read or write the old location otherwise.
+
 ## Dispatching
 
 Pass `model` and `effort` explicitly from the confirmed pre-flight config on **every** dispatch,
@@ -61,14 +69,14 @@ including the spike-only builder pass. Don't rely on frontmatter or the session.
 
 ## Run stats
 
-`.claude/pipeline-runs/<run-name>/run-stats.md` is the run's record: the settings each
+`.claude/bracket-runs/<run-name>/run-stats.md` is the run's record: the settings each
 invocation used, what each dispatch cost, and what it produced. It's read-only history. No skill
 reads settings back from it. If the file doesn't exist, create it with this header:
 
 ```
 # Run stats: <run-name>
 
-One section per pipeline invocation, one row per agent dispatch.
+One section per bracket command, one row per agent dispatch.
 Model and effort are the settings confirmed at pre-flight. The runtime can override them
 without reporting it, so treat them as requested, not guaranteed.
 ```

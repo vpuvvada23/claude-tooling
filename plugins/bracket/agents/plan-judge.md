@@ -1,6 +1,6 @@
 ---
 name: plan-judge
-description: Reconciles the plan-speed and plan-extensible drafts into one final implementation spec for the bracket plugin's pipeline.
+description: Reconciles the plan-speed and plan-extensible drafts into one final implementation spec for the bracket plugin.
 model: opus
 effort: xhigh
 ---
@@ -54,7 +54,7 @@ unverified and load-bearing. Otherwise list each as:
 - If it fails: <fallback approach, or "feature not deliverable as scoped">
 ```
 
-Blocking Unknowns are a hard gate: the pipeline runs them as spikes before the full build, and the
+Blocking Unknowns are a hard gate: bracket runs them as spikes before the full build, and the
 build does not proceed unless every one is confirmed.
 
 End the spec with a `## Verification Checklist` section listing concrete checks the verifier can

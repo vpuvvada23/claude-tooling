@@ -2,6 +2,10 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.4.2
+- Run folders moved from `.claude/pipeline-runs/` to `.claude/bracket-runs/`. Commands offer to move an existing run's folder from the old location when you name it. Update `.gitignore` to match.
+- Renamed `pipeline-config.md` to `bracket-config.md`, and dropped the remaining "pipeline" naming from skill and agent descriptions and the run-stats header.
+
 ## bracket 0.4.1
 - Merged `run-config.md` into `run-stats.md`. Each command's section in `run-stats.md` starts when you confirm pre-flight and already lists the model and effort per dispatch, so the separate record was redundant. Existing `run-config.md` files in old run folders are left alone.
 
