@@ -1,13 +1,16 @@
 {
   "name": "vinnie-tools",
   "owner": {
-    "name": "Vinnie"
+    "name": "VinnieP"
+  },
+  "metadata": {
+    "description": "Project-agnostic Claude Code plugins for planning, building, and verifying features with agent pipelines."
   },
   "plugins": [
     {
       "name": "dev-pipeline",
       "source": "./plugins/dev-pipeline",
-      "description": "Plan-build-verify agent pipeline: competing planners (plan-speed, plan-extensible), a reconciling judge, builder, and verifier, orchestrated by the dev-pipeline-* skills."
+      "description": "Plan-build-verify agent pipeline: competing planners (plan-speed, plan-extensible), a reconciling judge, a spike gate for unverified assumptions, builder, and verifier, orchestrated by the dev-pipeline-* skills."
     }
   ]
 }
