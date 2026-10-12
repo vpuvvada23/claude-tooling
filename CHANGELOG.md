@@ -2,6 +2,9 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.4.1
+- Merged `run-config.md` into `run-stats.md`. Each command's section in `run-stats.md` starts when you confirm pre-flight and already lists the model and effort per dispatch, so the separate record was redundant. Existing `run-config.md` files in old run folders are left alone.
+
 ## bracket 0.4.0
 - Renamed the plugin from `dev-pipeline` to `bracket` (display name "Bracket Dev Kit"). Commands are now `/bracket:full`, `/bracket:plan`, and `/bracket:build-verify`. Run folders in `.claude/pipeline-runs/` are unchanged.
 - Added a plugin-folder README (with a disclosure of what the agents run, write, and send) and LICENSE, as the plugin directory requires.

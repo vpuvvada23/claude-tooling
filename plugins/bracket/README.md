@@ -66,7 +66,7 @@ dependencies. What its agents do in your project:
   runs under your Claude Code permission settings.
 - **Modify your code.** The builder implements the approved spec.
 - **Write run files** to `.claude/pipeline-runs/<run-name>/`: `idea.md`,
-  `run-config.md`, `plan-speed.md`, `plan-extensible.md`, `spec.md`,
+  `plan-speed.md`, `plan-extensible.md`, `spec.md`,
   `spike-results.md`, `change-summary.md`, `verification.md`, `run-stats.md`.
 - **Never** stages, commits, or pushes, and never sends data to any service
   other than the Claude models your Claude Code session already uses. It reads
@@ -106,9 +106,8 @@ sets every role, and specific roles win):
 The judge and the spike pass are where a weaker result costs the most. Keep
 them strong before economizing anywhere else.
 
-`run-config.md` records the settings you confirmed for each command, and
-`run-stats.md` records each dispatch's model, effort, tokens, duration, and
-outcome. Each command prints the stats table with totals when it finishes.
+`run-stats.md` records, for each command, the settings you confirmed and each
+dispatch's tokens, duration, and outcome. Each command prints the stats table with totals when it finishes.
 
 ## Why it's built this way
 

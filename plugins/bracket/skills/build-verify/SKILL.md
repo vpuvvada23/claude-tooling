@@ -40,11 +40,11 @@ rests on no unverified external assumptions.
 
 ### Step 3 — Pre-flight
 Resolve the config per pipeline-config.md (defaults, then `--agents`). Don't read settings from
-an existing run-config.md, because it's a record only. Show the pre-flight agent config table with
+an existing run-stats.md, because it's a record only. Show the pre-flight agent config table with
 only the roles this skill will dispatch: spike (only if the spec has Blocking Unknowns), builder,
 and verifier. Ask the user to confirm or change it. Do not dispatch anything until they confirm.
-Then append the confirmed config to the run config record at
-.claude/pipeline-runs/<run-name>/run-config.md.
+Then start this invocation's section in the run stats record at
+.claude/pipeline-runs/<run-name>/run-stats.md.
 
 ### Step 4 — Spike gate (only if Blocking Unknowns is not "None.")
 Dispatch the builder in **spike-only mode** with the full contents of spec.md, using the `spike`
@@ -86,7 +86,7 @@ Do NOT commit or push anything. Lead with the honest state of the feature, not t
 2. Spike results (if any ran).
 3. Files changed (from change-summary.md).
 4. Remaining manual steps (from verification.md).
-5. Locations of all artifacts: run-config.md, spec.md, spike-results.md (if any),
+5. Locations of all artifacts: spec.md, spike-results.md (if any),
    change-summary.md, verification.md, run-stats.md.
 6. The final stats table (per pipeline-config.md). It covers the whole run, including the
    planning rows if they were recorded.

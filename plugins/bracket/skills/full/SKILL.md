@@ -39,8 +39,8 @@ mkdir -p .claude/pipeline-runs/<run-name>
 Write the feature idea and clarifying Q&A to:
 - .claude/pipeline-runs/<run-name>/idea.md
 
-Append the confirmed config to the run config record (per pipeline-config.md):
-- .claude/pipeline-runs/<run-name>/run-config.md
+Start this invocation's section in the run stats record (per pipeline-config.md):
+- .claude/pipeline-runs/<run-name>/run-stats.md
 
 ### Step 4 — Dispatch both planners in parallel
 Call the plan-speed and plan-extensible subagents in parallel with the same feature idea (plus any
@@ -102,7 +102,7 @@ Do NOT commit or push anything. Lead with the honest state of the feature, not t
 2. Spike results (if any ran).
 3. Files changed (from change-summary.md).
 4. Remaining manual steps (from verification.md).
-5. Locations of all artifacts: idea.md, run-config.md, plan-speed.md, plan-extensible.md, spec.md,
+5. Locations of all artifacts: idea.md, plan-speed.md, plan-extensible.md, spec.md,
    spike-results.md (if any), change-summary.md, verification.md, run-stats.md.
 6. The final stats table (per pipeline-config.md).
 7. Let the user know they can review everything and commit and push the changes themselves.

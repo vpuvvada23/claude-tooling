@@ -54,34 +54,6 @@ Show it in the same message as any clarifying questions, and ask the user to con
 change it. Don't dispatch anything until they've confirmed. This is the user's only chance to
 change settings for the invocation.
 
-## Run config record
-
-After the user confirms, append the confirmed settings to
-`.claude/pipeline-runs/<run-name>/run-config.md`. It's a read-only historical record: no skill
-reads settings back from it. If the file doesn't exist, create it with this header:
-
-```
-# Run config: <run-name>
-
-Agent settings confirmed at the start of each pipeline invocation for this run.
-This is a record only. Settings are chosen at the pre-flight prompt when a run starts.
-```
-
-Then append one section per invocation, headed `## bracket:<skill> · <YYYY-MM-DD HH:MM>` (skill is
-`full`, `plan`, or `build-verify`), with the columns padded so the table lines up as plain text:
-
-```
-## bracket:plan · 2026-10-12 09:04
-
-| Role            | Model | Effort |
-|-----------------|-------|--------|
-| plan-speed      | opus  | high   |
-| plan-extensible | opus  | high   |
-| plan-judge      | opus  | xhigh  |
-```
-
-Never overwrite or edit earlier sections.
-
 ## Dispatching
 
 Pass `model` and `effort` explicitly from the confirmed pre-flight config on **every** dispatch,
@@ -89,20 +61,22 @@ including the spike-only builder pass. Don't rely on frontmatter or the session.
 
 ## Run stats
 
-After each dispatch completes, record it in `.claude/pipeline-runs/<run-name>/run-stats.md`. It's
-a read-only record, like run-config.md. If the file doesn't exist, create it with this header:
+`.claude/pipeline-runs/<run-name>/run-stats.md` is the run's record: the settings each
+invocation used, what each dispatch cost, and what it produced. It's read-only history. No skill
+reads settings back from it. If the file doesn't exist, create it with this header:
 
 ```
 # Run stats: <run-name>
 
-What each agent dispatch in this run cost and what it produced, one row per dispatch.
-Model and effort are the settings the pipeline asked for. The runtime can override them
+One section per pipeline invocation, one row per agent dispatch.
+Model and effort are the settings confirmed at pre-flight. The runtime can override them
 without reporting it, so treat them as requested, not guaranteed.
 ```
 
-When recording an invocation's first dispatch, first append a section heading for that
-invocation (same format as run-config.md). Then append one row per dispatch under it, with the columns padded
-so the table lines up as plain text:
+As soon as the user confirms the pre-flight config, append a section for the invocation, headed
+`## bracket:<skill> · <YYYY-MM-DD HH:MM>` (skill is `full`, `plan`, or `build-verify`), with the
+table header. Then, after each dispatch completes, append its row, with the columns padded so the
+table lines up as plain text:
 
 ```
 ## bracket:plan · 2026-10-12 09:14

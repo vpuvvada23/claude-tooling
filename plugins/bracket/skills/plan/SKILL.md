@@ -39,8 +39,8 @@ mkdir -p .claude/pipeline-runs/<run-name>
 Write the feature idea and clarifying Q&A to:
 - .claude/pipeline-runs/<run-name>/idea.md
 
-Append the confirmed config to the run config record (per pipeline-config.md):
-- .claude/pipeline-runs/<run-name>/run-config.md
+Start this invocation's section in the run stats record (per pipeline-config.md):
+- .claude/pipeline-runs/<run-name>/run-stats.md
 
 ### Step 4 — Dispatch both planners in parallel
 Call the plan-speed and plan-extensible subagents in parallel with the same feature idea (plus any
@@ -63,7 +63,7 @@ partial spec or proceed further.
 
 Tell the user:
 - The run name
-- That idea.md, run-config.md, plan-speed.md, plan-extensible.md, spec.md, and run-stats.md are
+- That idea.md, plan-speed.md, plan-extensible.md, spec.md, and run-stats.md are
   saved under .claude/pipeline-runs/<run-name>/
 - The spec's Blocking Unknowns, listed up front — these run as spikes and gate the build. If the
   spec includes an estimate, present it as conditional on them.
