@@ -1,6 +1,6 @@
 ---
 name: plan-judge
-description: Reconciles the plan-speed and plan-extensible drafts into one final implementation spec for the dev-pipeline-full.
+description: Reconciles the plan-speed and plan-extensible drafts into one final implementation spec for the bracket plugin's pipeline.
 model: opus
 effort: xhigh
 ---

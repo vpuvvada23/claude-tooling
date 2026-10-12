@@ -1,6 +1,6 @@
-# Dev Pipeline — Agent Config and Run Stats
+# Bracket — Agent Config and Run Stats
 
-Shared by the dev-pipeline-full, dev-pipeline-plan, and dev-pipeline-build-verify skills.
+Shared by the bracket plugin's full, plan, and build-verify skills.
 
 ## Default agent config
 
@@ -67,11 +67,11 @@ Agent settings confirmed at the start of each pipeline invocation for this run.
 This is a record only. Settings are chosen at the pre-flight prompt when a run starts.
 ```
 
-Then append one section per invocation, with the columns padded so the table lines up as plain
-text:
+Then append one section per invocation, headed `## bracket:<skill> · <YYYY-MM-DD HH:MM>` (skill is
+`full`, `plan`, or `build-verify`), with the columns padded so the table lines up as plain text:
 
 ```
-## dev-pipeline-plan · 2026-10-12 09:04
+## bracket:plan · 2026-10-12 09:04
 
 | Role            | Model | Effort |
 |-----------------|-------|--------|
@@ -105,7 +105,7 @@ invocation (same format as run-config.md). Then append one row per dispatch unde
 so the table lines up as plain text:
 
 ```
-## dev-pipeline-plan · 2026-10-12 09:14
+## bracket:plan · 2026-10-12 09:14
 
 | Role            | Model | Effort | Tokens | Duration | Outcome      | Completed |
 |-----------------|-------|--------|--------|----------|--------------|-----------|

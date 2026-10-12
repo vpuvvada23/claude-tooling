@@ -8,9 +8,9 @@
   },
   "plugins": [
     {
-      "name": "dev-pipeline",
-      "source": "./plugins/dev-pipeline",
-      "description": "Plan-build-verify agent pipeline: competing planners (plan-speed, plan-extensible), a reconciling judge, a spike gate for unverified assumptions, builder, and verifier, orchestrated by the dev-pipeline-* skills."
+      "name": "bracket",
+      "source": "./plugins/bracket",
+      "description": "Competing planners, a judge, a builder, and a verifier for Claude Code, with a spike gate for unverified assumptions and an honest PASS / UNCONFIRMED / FAIL verdict."
     }
   ]
 }

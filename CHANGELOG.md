@@ -1,5 +1,11 @@
 # Changelog
 
+The plugin was named `dev-pipeline` before 0.4.0.
+
+## bracket 0.4.0
+- Renamed the plugin from `dev-pipeline` to `bracket` (display name "Bracket Dev Kit"). Commands are now `/bracket:full`, `/bracket:plan`, and `/bracket:build-verify`. Run folders in `.claude/pipeline-runs/` are unchanged.
+- Added a plugin-folder README (with a disclosure of what the agents run, write, and send) and LICENSE, as the plugin directory requires.
+
 ## dev-pipeline 0.3.2
 - `run-stats.md` gets an explanatory header, a section per command, and aligned tables.
 - Dropped the Tool uses column and the "(requested)" labels; the header explains that model and effort are what was requested.

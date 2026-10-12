@@ -1,6 +1,6 @@
 ---
 name: plan-speed
-description: Drafts a fast-ship implementation plan for a feature idea, optimizing for minimal surface area and shortest path to working code. Used as one of two competing planners in the dev-pipeline-full.
+description: Drafts a fast-ship implementation plan for a feature idea, optimizing for minimal surface area and shortest path to working code. Used as one of two competing planners in the bracket plugin's pipeline.
 model: opus
 effort: high
 ---

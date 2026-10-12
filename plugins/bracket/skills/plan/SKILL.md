@@ -1,17 +1,17 @@
 ---
-name: dev-pipeline-plan
+name: plan
 description: Plans a feature idea through the full planner panel (plan-speed + plan-extensible + plan-judge) and saves the reconciled spec. Use when the user wants to plan before deciding whether to build. Stops after spec.md is saved — does not invoke builder or verifier.
 argument-hint: "<run-name> [--agents role=model[:effort],...] [idea]"
 ---
-> Agent names in this skill (plan-speed, plan-extensible, plan-judge, builder, verifier) are provided by the dev-pipeline plugin and may appear namespaced in the available-agents list (e.g. dev-pipeline:plan-speed). Dispatch using the name exactly as it appears in that list.
+> Agent names in this skill (plan-speed, plan-extensible, plan-judge, builder, verifier) are provided by the bracket plugin and may appear namespaced in the available-agents list (e.g. bracket:plan-speed). Dispatch using the name exactly as it appears in that list.
 
 
-# Dev Pipeline — Plan Only
+# Bracket — Plan Only
 
 ## Purpose
 Take a feature idea through the planning panel and produce a reconciled, buildable spec.
 Stops after the judge writes spec.md. Builder and verifier are not invoked — use
-dev-pipeline-build-verify when ready to build.
+/bracket:build-verify when ready to build.
 
 ## Instructions
 
@@ -30,7 +30,7 @@ tight — only ask what's actually needed. If the idea is already clear and comp
 
 In the same message, show the pre-flight agent config table (per pipeline-config.md) with only
 plan-speed, plan-extensible, and plan-judge. Build-phase settings are chosen later, at
-dev-pipeline-build-verify's own pre-flight. Ask the user to confirm or change it. Do not dispatch
+/bracket:build-verify's own pre-flight. Ask the user to confirm or change it. Do not dispatch
 anything until both are settled.
 
 ### Step 3 — Create the run folder
@@ -68,4 +68,4 @@ Tell the user:
 - The spec's Blocking Unknowns, listed up front — these run as spikes and gate the build. If the
   spec includes an estimate, present it as conditional on them.
 - The final stats table (per pipeline-config.md)
-- That they can run dev-pipeline-build-verify with run name "<run-name>" when ready to build
+- That they can run /bracket:build-verify with run name "<run-name>" when ready to build

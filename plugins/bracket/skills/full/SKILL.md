@@ -1,12 +1,12 @@
 ---
-name: dev-pipeline-full
-description: Runs a feature idea through a full plan-build-verify agent pipeline. Trigger when the user says "run the dev pipeline", "kick off dev-pipeline for <run-name>", or describes wanting a feature built via the planning panel.
+name: full
+description: Runs a feature idea through a full plan-build-verify agent pipeline. Trigger when the user says "run bracket", "run the dev pipeline", "kick off bracket for <run-name>", or describes wanting a feature built via the planning panel.
 argument-hint: "<run-name> [--agents role=model[:effort],...] [idea]"
 ---
-> Agent names in this skill (plan-speed, plan-extensible, plan-judge, builder, verifier) are provided by the dev-pipeline plugin and may appear namespaced in the available-agents list (e.g. dev-pipeline:plan-speed). Dispatch using the name exactly as it appears in that list.
+> Agent names in this skill (plan-speed, plan-extensible, plan-judge, builder, verifier) are provided by the bracket plugin and may appear namespaced in the available-agents list (e.g. bracket:plan-speed). Dispatch using the name exactly as it appears in that list.
 
 
-# Dev Pipeline Skill
+# Bracket — Full Pipeline
 
 ## Purpose
 Take a feature idea from plan through build to verification, using a panel of specialized
