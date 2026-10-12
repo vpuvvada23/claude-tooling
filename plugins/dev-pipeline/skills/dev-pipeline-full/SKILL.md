@@ -28,8 +28,9 @@ files/systems it touches, anything a planner would need to know to avoid guessin
 tight — only ask what's actually needed to plan, not exhaustive discovery. If the idea is
 already clear and complete, say so.
 
-In the same message, show the pre-flight agent config table (all six roles; this skill
-dispatches all of them) and ask the user to confirm or change it. Do not dispatch anything
+In the same message, show the pre-flight agent config table (per pipeline-config.md) with all
+six roles, since this skill can dispatch all of them. Below the table, note that spike only runs
+if the spec has Blocking Unknowns. Ask the user to confirm or change it. Do not dispatch anything
 until both are settled.
 
 ### Step 3 — Create the run folder
@@ -38,7 +39,7 @@ mkdir -p .claude/pipeline-runs/<run-name>
 Write the feature idea and clarifying Q&A to:
 - .claude/pipeline-runs/<run-name>/idea.md
 
-Write the confirmed config to:
+Append the confirmed config to the run config record (per pipeline-config.md):
 - .claude/pipeline-runs/<run-name>/run-config.md
 
 ### Step 4 — Dispatch both planners in parallel

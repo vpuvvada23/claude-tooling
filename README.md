@@ -88,8 +88,10 @@ frontmatter mirrors these defaults only as a fallback for direct use.
 ```
 
 The format is comma-separated `role=model[:effort]` (or `role=:effort`). `all`
-sets every role, and specific roles win over it. The confirmed config is saved
-to `run-config.md` and reused by later invocations for the same run.
+sets every role, and specific roles win over it. You can also change settings at
+the pre-flight prompt, which shows only the roles that command is about to
+dispatch. That prompt is the one place settings are chosen. `run-config.md`
+keeps a read-only record of what you confirmed for each command in the run.
 
 **Run stats.** Every dispatch appends a row to `run-stats.md` with the requested
 model and effort, tokens, tool uses, duration, and outcome. Each skill prints the

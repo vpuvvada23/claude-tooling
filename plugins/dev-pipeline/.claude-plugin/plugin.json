@@ -1,6 +1,6 @@
 {
   "name": "dev-pipeline",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Plan-build-verify agent pipeline (plan-speed, plan-extensible, plan-judge, builder, verifier) with a spike gate for unverified assumptions, per-run model/effort config, and run stats",
   "author": {
     "name": "VinnieP",

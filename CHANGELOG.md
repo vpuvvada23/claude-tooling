@@ -1,5 +1,9 @@
 # Changelog
 
+## dev-pipeline 0.3.1
+- The pre-flight table shows only Role, Model, and Effort for the roles the current command will dispatch.
+- `run-config.md` is now a read-only, append-only record with an explanatory header and aligned tables. No command reads settings back from it, and each command chooses its own settings at pre-flight.
+
 ## dev-pipeline 0.3.0
 - Agents use model family aliases (`opus`, `sonnet`) instead of pinned IDs, so they track new releases.
 - Defaults moved to `pipeline-config.md`: Opus for planners, judge (xhigh), spike pass, and verifier; Sonnet for the builder.

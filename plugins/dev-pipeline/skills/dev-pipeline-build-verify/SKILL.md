@@ -39,10 +39,12 @@ tell the user. Offer to re-run planning, or to proceed with no gate if they conf
 rests on no unverified external assumptions.
 
 ### Step 3 — Pre-flight
-Resolve the config (defaults, then run-config.md if present, then `--agents`). Show the
-pre-flight table, marking spike (only if the spec has Blocking Unknowns), builder, and verifier
-as dispatched now. Ask the user to confirm or change it, then write run-config.md. Do not
-dispatch anything until they confirm.
+Resolve the config per pipeline-config.md (defaults, then `--agents`). Don't read settings from
+an existing run-config.md, because it's a record only. Show the pre-flight agent config table with
+only the roles this skill will dispatch: spike (only if the spec has Blocking Unknowns), builder,
+and verifier. Ask the user to confirm or change it. Do not dispatch anything until they confirm.
+Then append the confirmed config to the run config record at
+.claude/pipeline-runs/<run-name>/run-config.md.
 
 ### Step 4 — Spike gate (only if Blocking Unknowns is not "None.")
 Dispatch the builder in **spike-only mode** with the full contents of spec.md, using the `spike`

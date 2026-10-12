@@ -28,10 +28,10 @@ Before creating anything, review the idea for ambiguity — scope, edge cases, w
 files/systems it touches, anything a planner would need to know to avoid guessing. Keep this
 tight — only ask what's actually needed. If the idea is already clear and complete, say so.
 
-In the same message, show the pre-flight agent config table. Show all six roles, and mark
-plan-speed, plan-extensible, and plan-judge as dispatched now. The build-phase roles are saved
-for dev-pipeline-build-verify to reuse, and can be changed again then. Ask the user to confirm or
-change it. Do not dispatch anything until both are settled.
+In the same message, show the pre-flight agent config table (per pipeline-config.md) with only
+plan-speed, plan-extensible, and plan-judge. Build-phase settings are chosen later, at
+dev-pipeline-build-verify's own pre-flight. Ask the user to confirm or change it. Do not dispatch
+anything until both are settled.
 
 ### Step 3 — Create the run folder
 mkdir -p .claude/pipeline-runs/<run-name>
@@ -39,7 +39,7 @@ mkdir -p .claude/pipeline-runs/<run-name>
 Write the feature idea and clarifying Q&A to:
 - .claude/pipeline-runs/<run-name>/idea.md
 
-Write the confirmed config to:
+Append the confirmed config to the run config record (per pipeline-config.md):
 - .claude/pipeline-runs/<run-name>/run-config.md
 
 ### Step 4 — Dispatch both planners in parallel

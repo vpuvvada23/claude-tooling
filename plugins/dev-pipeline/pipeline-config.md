@@ -34,30 +34,58 @@ Pass `--agents` when starting a skill:
 
 - Format: comma-separated `role=model[:effort]` or `role=:effort` (effort only). Roles are the
   table's Role column, plus `all`. Specific roles override `all`, regardless of order.
-- Omitted parts keep their resolved value.
+- Omitted parts keep their default.
 - If a role, model alias, or effort is not recognized, stop and ask. Don't guess.
+- If `--agents` names a role this skill won't dispatch (e.g. `builder` when only planning), tell
+  the user it doesn't apply to this invocation.
 
-## Resolving a run's config
+## Resolving the config
 
-Apply in order, each layer overriding the last:
+Each invocation resolves its own config. Nothing carries over from earlier invocations:
 1. The default table above.
-2. `.claude/pipeline-runs/<run-name>/run-config.md`, if it exists (an earlier invocation for this
-   run already chose a config).
-3. `--agents` overrides from this invocation.
+2. `--agents` overrides from this invocation.
+3. Any changes the user makes at the pre-flight prompt.
 
 ## Pre-flight
 
-Before the first dispatch of the invocation, show the resolved config as a table with columns
-Role, Model, Effort, Source (`default`, `run-config`, or `--agents`). Mark which roles this skill
-will actually dispatch. Show it in the same message as any clarifying questions, and ask the
-user to confirm it or change it. Don't dispatch anything until they've confirmed. Apply any edits
-they make, then write the final table to `.claude/pipeline-runs/<run-name>/run-config.md`
-(overwriting).
+Before the first dispatch of the invocation, show a table titled **Pre-flight agent config** with
+exactly three columns, Role | Model | Effort. Include only the roles this invocation will dispatch.
+Show it in the same message as any clarifying questions, and ask the user to confirm it or
+change it. Don't dispatch anything until they've confirmed. This is the user's only chance to
+change settings for the invocation.
+
+## Run config record
+
+After the user confirms, append the confirmed settings to
+`.claude/pipeline-runs/<run-name>/run-config.md`. It's a read-only historical record: no skill
+reads settings back from it. If the file doesn't exist, create it with this header:
+
+```
+# Run config: <run-name>
+
+Agent settings confirmed at the start of each pipeline invocation for this run.
+This is a record only. Settings are chosen at the pre-flight prompt when a run starts.
+```
+
+Then append one section per invocation, with the columns padded so the table lines up as plain
+text:
+
+```
+## dev-pipeline-plan · 2026-10-12 09:04
+
+| Role            | Model | Effort |
+|-----------------|-------|--------|
+| plan-speed      | opus  | high   |
+| plan-extensible | opus  | high   |
+| plan-judge      | opus  | xhigh  |
+```
+
+Never overwrite or edit earlier sections.
 
 ## Dispatching
 
-Pass `model` and `effort` explicitly from run-config.md on **every** dispatch, including the
-spike-only builder pass. Don't rely on frontmatter or the session.
+Pass `model` and `effort` explicitly from the confirmed pre-flight config on **every** dispatch,
+including the spike-only builder pass. Don't rely on frontmatter or the session.
 
 ## Run stats
 
