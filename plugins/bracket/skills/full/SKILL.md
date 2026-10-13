@@ -55,7 +55,7 @@ Save output to:
 - .claude/bracket-runs/<run-name>/spec.md
 
 **If plan-judge halts due to a genuine irreconcilable conflict: STOP HERE.** Show the user the
-disagreement summary and the final stats table, and wait for their decision before proceeding.
+disagreement summary and the run cost line, and wait for their decision before proceeding.
 Do not dispatch the builder.
 
 ### Step 6 — Spike gate (only if spec.md exists and is a resolved spec)
@@ -70,7 +70,7 @@ in **spike-only mode** with spec.md, using the `spike` role's model and effort. 
 Read the report yourself. Do not rely only on its overall verdict line.
 - **Every Blocking Unknown CONFIRMED** with observed evidence: continue to Step 7.
 - **Any REFUTED or NOT RUN: STOP.** Do not dispatch the full build. Tell the user which BU failed,
-  what was observed, and the spec's "If it fails" fallback, and print the final stats table. Let
+  what was observed, and the spec's "If it fails" fallback, and print the run cost line. Let
   them decide: amend the spec, run the spike themselves, or abandon the run.
 
 A spike is not confirmed by a template, a placeholder findings doc, or an assumption written into
@@ -104,7 +104,7 @@ Do NOT commit or push anything. Lead with the honest state of the feature, not t
 4. Remaining manual steps (from verification.md).
 5. Locations of all artifacts: idea.md, plan-speed.md, plan-extensible.md, spec.md,
    spike-results.md (if any), change-summary.md, verification.md, run-stats.md.
-6. The final stats table (per bracket-config.md).
+6. The run cost line (per bracket-config.md).
 7. Let the user know they can review everything and commit and push the changes themselves.
 
 If the user later reports the feature isn't working, reach for the available automation

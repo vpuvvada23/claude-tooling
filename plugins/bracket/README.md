@@ -107,7 +107,8 @@ The judge and the spike pass are where a weaker result costs the most. Keep
 them strong before economizing anywhere else.
 
 `run-stats.md` records, for each command, the settings you confirmed and each
-dispatch's tokens, duration, and outcome. Each command prints the stats table with totals when it finishes.
+dispatch's tokens, duration, and outcome. When a command finishes, it prints a
+one-line run cost total. Open `run-stats.md` for the per-dispatch breakdown.
 
 ## Why it's built this way
 

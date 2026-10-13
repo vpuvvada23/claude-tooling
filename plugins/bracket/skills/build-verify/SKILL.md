@@ -55,7 +55,7 @@ role's model and effort. Save output to:
 Read the report yourself. Do not rely only on its overall verdict line.
 - **Every Blocking Unknown CONFIRMED** with observed evidence: continue to Step 5.
 - **Any REFUTED or NOT RUN: STOP.** Do not dispatch the full build. Tell the user which BU failed,
-  what was observed, and the spec's "If it fails" fallback, and print the final stats table. Let
+  what was observed, and the spec's "If it fails" fallback, and print the run cost line. Let
   them decide: amend the spec, run the spike themselves, or abandon the run.
 
 A spike is not confirmed by a template, a placeholder findings doc, or an assumption written into
@@ -89,8 +89,7 @@ Do NOT commit or push anything. Lead with the honest state of the feature, not t
 4. Remaining manual steps (from verification.md).
 5. Locations of all artifacts: spec.md, spike-results.md (if any),
    change-summary.md, verification.md, run-stats.md.
-6. The final stats table (per bracket-config.md). It covers the whole run, including the
-   planning rows if they were recorded.
+6. The run cost line (per bracket-config.md).
 7. Let the user know they can commit and push these changes themselves once they've reviewed
    everything.
 

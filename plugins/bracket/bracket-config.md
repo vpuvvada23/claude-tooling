@@ -97,29 +97,42 @@ table lines up as plain text:
 
 Re-pad the section's earlier rows if a new row is wider.
 
+- One row per agent dispatch, and only agent dispatches. Every dispatch gets a row, including
+  re-dispatches after a FAIL and ones that do setup work before another agent can run (e.g. the
+  spike pass building the app so a Blocking Unknown can be tested). Work that isn't an agent
+  dispatch, such as the user or the orchestrating session running a step by hand, gets no row,
+  since it has no model, effort, or usage. Its result goes in the relevant output file (e.g.
+  spike-results.md).
+- Role: a name from the Role column of the default config table, with no qualifiers. The
+  spike-only builder pass is `spike`.
 - Tokens and duration come from the dispatch's completion usage (`subagent_tokens`,
   `duration_ms`). Format tokens as e.g. `48.2k` and duration as `Xm Ys`. If usage wasn't
   reported, write `n/a`. Never estimate.
 - Outcome: exactly one value from this list for the role, with no extra detail (put details like
   which plan a planner preferred in its own output file, not here):
 
-  | Role                 | Outcome values                                  |
-  |----------------------|-------------------------------------------------|
-  | plan-speed           | `plan written`, `error`                         |
-  | plan-extensible      | `plan written`, `error`                         |
-  | plan-judge           | `spec written`, `halted: conflict`, `error`     |
-  | builder (spike-only) | `ALL CONFIRMED`, `GATE BLOCKED (BU-n)`, `error` |
-  | builder              | `built`, `error`                                |
-  | verifier             | `PASS`, `UNCONFIRMED`, `FAIL`, `error`          |
+  | Role            | Outcome values                                  |
+  |-----------------|-------------------------------------------------|
+  | plan-speed      | `plan written`, `error`                         |
+  | plan-extensible | `plan written`, `error`                         |
+  | plan-judge      | `spec written`, `halted: conflict`, `error`     |
+  | spike           | `ALL CONFIRMED`, `GATE BLOCKED (BU-n)`, `error` |
+  | builder         | `built`, `error`                                |
+  | verifier        | `PASS`, `UNCONFIRMED`, `FAIL`, `error`          |
 
 - Completed: local time (`HH:MM`). The section heading carries the date.
-- Every dispatch gets its own row, including re-dispatches after a FAIL. Never edit earlier
-  sections.
+- Never edit earlier sections.
 
-## Final stats table
+## Run cost line
 
-At the end of every invocation, including ones that halt early, print the full contents of
-run-stats.md (all sections for this run, not only this invocation's), followed by a **Run total**
-line summing tokens and duration across every row. Durations are summed across dispatches, so
-parallel planners count twice. That's the cost, not the wall-clock time. Note that the
-orchestrating session's own tokens are not included.
+At the end of every invocation, including ones that halt early, don't print the stats table.
+Print one line instead, totaling every row in run-stats.md (the whole run, not only this
+invocation):
+
+```
+Run cost so far: 1.48M tokens · 2h 16m agent time · 7 dispatches. Details in run-stats.md.
+```
+
+Agent time sums durations across dispatches, so parallel planners count twice. It's the cost, not
+the wall-clock time. The orchestrating session's own tokens are not included. Print the full table
+only if the user asks for it.

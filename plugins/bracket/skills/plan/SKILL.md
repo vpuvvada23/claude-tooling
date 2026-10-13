@@ -55,7 +55,7 @@ Save output to:
 - .claude/bracket-runs/<run-name>/spec.md
 
 **If plan-judge halts due to a genuine irreconcilable conflict: STOP HERE.** Show the user the
-disagreement summary and the final stats table, and wait for their decision. Do not save a
+disagreement summary and the run cost line, and wait for their decision. Do not save a
 partial spec or proceed further.
 
 ### Step 6 — Stop and report
@@ -67,5 +67,5 @@ Tell the user:
   saved under .claude/bracket-runs/<run-name>/
 - The spec's Blocking Unknowns, listed up front — these run as spikes and gate the build. If the
   spec includes an estimate, present it as conditional on them.
-- The final stats table (per bracket-config.md)
+- The run cost line (per bracket-config.md)
 - That they can run /bracket:build-verify with run name "<run-name>" when ready to build

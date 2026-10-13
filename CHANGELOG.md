@@ -2,6 +2,10 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.4.3
+- Commands no longer print the full stats table when they finish. They print a one-line run cost total and point to `run-stats.md` for the breakdown.
+- `run-stats.md` rows are agent dispatches only, named by their config role (the spike pass is `spike`). Steps run by hand, like a device test you do yourself, get no row.
+
 ## bracket 0.4.2
 - Run folders moved from `.claude/pipeline-runs/` to `.claude/bracket-runs/`. Commands offer to move an existing run's folder from the old location when you name it. Update `.gitignore` to match.
 - Renamed `pipeline-config.md` to `bracket-config.md`, and dropped the remaining "pipeline" naming from skill and agent descriptions and the run-stats header.
