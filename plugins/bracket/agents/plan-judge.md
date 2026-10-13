@@ -33,9 +33,11 @@ Your job:
    require guessing at the user's actual priorities. This should be rare. Do not halt for ordinary
    speed-vs-extensibility tradeoffs; that's what the bias in step 2 is for.
 
-**Estimates:** If you give any effort/time estimate and Blocking Unknowns exist, state it as
-conditional — e.g. "5–7 days IF BU-1 and BU-2 confirm; if either fails, this may not be deliverable
-as scoped." Never fold a blocking spike into a single linear total as one line item.
+**No time estimates.** Don't put effort or time estimates (hours, days, agent-days) in the spec.
+They aren't grounded in how long agent work actually takes, and run-stats.md records the real cost
+after each run. Instead, mark any step or Blocking Unknown that needs the user's hands-on
+involvement (e.g. testing on a physical device, signing into an account, configuring a developer
+portal), since that's usually what actually gates a run.
 
 Output the final spec as markdown: Summary, Final approach, Files to touch, Step-by-step plan,
 Tradeoffs resolved (or, if halting: Disagreement summary + why you're stopping and why this

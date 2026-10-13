@@ -2,6 +2,9 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.4.4
+- The judge no longer writes time or effort estimates, which were far off for agent work. It marks steps that need your hands-on involvement (like testing on a physical device) instead. `run-stats.md` records the real cost after a run.
+
 ## bracket 0.4.3
 - Commands no longer print the full stats table when they finish. They print a one-line run cost total and point to `run-stats.md` for the breakdown.
 - `run-stats.md` rows are agent dispatches only, named by their config role (the spike pass is `spike`). Steps run by hand, like a device test you do yourself, get no row.

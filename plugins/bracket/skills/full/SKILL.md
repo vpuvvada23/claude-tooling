@@ -75,8 +75,6 @@ Read the report yourself. Do not rely only on its overall verdict line.
 
 A spike is not confirmed by a template, a placeholder findings doc, or an assumption written into
 code. If a "CONFIRMED" entry doesn't show what was actually run and observed, treat it as NOT RUN.
-Any estimate in the spec stays conditional until this gate clears. Don't quote it to the user as a
-settled number before then.
 
 ### Step 7 — Dispatch the builder
 Call builder in **build mode** with spec.md and, if it exists, spike-results.md, using the

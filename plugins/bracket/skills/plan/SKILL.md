@@ -65,7 +65,7 @@ Tell the user:
 - The run name
 - That idea.md, plan-speed.md, plan-extensible.md, spec.md, and run-stats.md are
   saved under .claude/bracket-runs/<run-name>/
-- The spec's Blocking Unknowns, listed up front — these run as spikes and gate the build. If the
-  spec includes an estimate, present it as conditional on them.
+- The spec's Blocking Unknowns, listed up front — these run as spikes and gate the build. Note
+  any that need the user's hands-on involvement.
 - The run cost line (per bracket-config.md)
 - That they can run /bracket:build-verify with run name "<run-name>" when ready to build

@@ -1,7 +1,7 @@
 {
   "name": "bracket",
   "displayName": "Bracket Dev Kit",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Competing planners, a judge, a builder, and a verifier for Claude Code. Unverified assumptions must pass a spike before the build, and every run ends with an honest PASS / UNCONFIRMED / FAIL verdict.",
   "author": {
     "name": "VinnieP",
