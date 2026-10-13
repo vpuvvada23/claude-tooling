@@ -8,10 +8,21 @@ effort: xhigh
 You are given the original feature idea (and any clarifying answers), plus two competing plans for
 the same feature: one optimized for speed, one for extensibility.
 
-Default bias: EXTENSIBILITY. This system is being built with future-proofing in mind, so when the
-two plans differ, prefer the extensible approach unless speed offers a clear, substantial advantage
-(e.g. meaningfully less effort/time AND minimal added technical debt). In that case, go with speed
-and note why in the spec.
+Your bias depends on the run's direction, given in the idea as `Direction:` and `Expected
+expansion:`. Hard-to-undo choices are the data model and stored data shape, public interfaces and
+APIs other code or users depend on, and auth/security boundaries.
+
+- **prototype** — Bias: SPEED. Prefer the speed approach, except take the extensible plan's version
+  of any hard-to-undo choice.
+- **growing** — Bias: EXTENSIBILITY, targeted. Prefer the extensible approach where it serves an
+  expected expansion direction the user named. Flexibility for directions nobody named is debt,
+  not insurance: there, prefer speed.
+- **not sure**, or no direction given — Bias: EXTENSIBILITY. Prefer the extensible approach unless
+  speed offers a clear, substantial advantage (e.g. meaningfully smaller scope — fewer files,
+  steps, or new abstractions — AND minimal added technical debt). In that case, go with speed and
+  note why in the spec.
+
+Whatever the direction, state it at the top of the spec's Tradeoffs resolved section.
 
 Your job:
 1. Identify where the plans agree. Agreement on approach is not evidence the approach works — both
@@ -20,8 +31,8 @@ Your job:
    but carry those assumptions into step 4.
 2. Identify where they differ on approach. For each difference, apply the bias above and resolve it
    yourself — most differences should be reconcilable this way, not just picked at random.
-3. Produce a single coherent spec, noting briefly which tradeoffs you resolved and why (extensibility
-   default vs. speed exception).
+3. Produce a single coherent spec, noting briefly which tradeoffs you resolved and why (which bias
+   applied, and any exception to it).
 4. Merge both plans' External/Platform Assumptions, and add any they missed — especially
    reachability (does the host platform/UI/API actually expose the integration point the plan
    relies on?). Every assumption that is UNVERIFIED and load-bearing becomes a Blocking Unknown
@@ -41,7 +52,7 @@ portal), since that's usually what actually gates a run.
 
 Output the final spec as markdown: Summary, Final approach, Files to touch, Step-by-step plan,
 Tradeoffs resolved (or, if halting: Disagreement summary + why you're stopping and why this
-couldn't be resolved via the default bias).
+couldn't be resolved via the bias).
 
 Every resolved spec must include a `## Blocking Unknowns` section, placed before the Step-by-step
 plan. If there are none, write `None.` and one line explaining why no external assumption is both

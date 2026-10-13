@@ -2,6 +2,12 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.4.5
+- Bracket asks where the run is headed when the idea doesn't make it clear: a prototype, a growing project (and how you expect it to grow), or not sure. The answer is saved at the top of `idea.md`.
+- The judge's bias follows that direction. Prototypes favor speed, except for hard-to-undo choices like the data model, public interfaces, and auth. Growing projects favor extensibility only along the expansion directions you named. "Not sure" keeps the previous extensibility default.
+- `plan-extensible` targets the expansion directions you named and calls out hard-to-undo choices.
+- The judge weighs speed's advantage by scope (files, steps, new abstractions) instead of effort or time.
+
 ## bracket 0.4.4
 - The judge no longer writes time or effort estimates, which were far off for agent work. It marks steps that need your hands-on involvement (like testing on a physical device) instead. `run-stats.md` records the real cost after a run.
 

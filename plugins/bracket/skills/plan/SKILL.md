@@ -28,6 +28,15 @@ Before creating anything, review the idea for ambiguity — scope, edge cases, w
 files/systems it touches, anything a planner would need to know to avoid guessing. Keep this
 tight — only ask what's actually needed. If the idea is already clear and complete, say so.
 
+Also settle the run's **direction**, unless the idea or project already makes it clear (e.g. "quick
+test of…", a scratch repo, a stated roadmap):
+- **prototype** — a throwaway or market test; no long-term plans yet
+- **growing** — expected to expand; ask how (the specific directions, e.g. "add Android next",
+  "multi-user later")
+- **not sure** — a fine answer; don't push for one
+
+If you inferred it rather than asked, state it so the user can correct it.
+
 In the same message, show the pre-flight agent config table (per bracket-config.md) with only
 plan-speed, plan-extensible, and plan-judge. Build-phase settings are chosen later, at
 /bracket:build-verify's own pre-flight. Ask the user to confirm or change it. Do not dispatch
@@ -38,6 +47,12 @@ mkdir -p .claude/bracket-runs/<run-name>
 
 Write the feature idea and clarifying Q&A to:
 - .claude/bracket-runs/<run-name>/idea.md
+
+Start idea.md with the direction as labeled lines, before the idea itself:
+```
+Direction: prototype | growing | not sure
+Expected expansion: <the directions named, or "none stated">
+```
 
 Start this invocation's section in the run stats record (per bracket-config.md):
 - .claude/bracket-runs/<run-name>/run-stats.md

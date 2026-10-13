@@ -17,9 +17,13 @@ idea ─┬─► plan-speed ──────┐
   code, and `plan-extensible` drafts the future-proof version. Each lists the
   external/platform assumptions its plan depends on and whether they're
   verified.
-- **A judge** reconciles the two into one spec. It defaults to extensibility
-  unless speed wins clearly. It promotes every unverified, load-bearing
-  assumption to a **Blocking Unknown**, with a concrete test and pass criterion.
+- **A judge** reconciles the two into one spec. Its bias follows the run's
+  direction, which Bracket asks about up front when it isn't clear: speed for
+  a prototype (except for hard-to-undo choices like the data model),
+  extensibility along your stated expansion plans for a growing project, and
+  extensibility unless speed wins clearly when you're not sure. It promotes
+  every unverified, load-bearing assumption to a **Blocking Unknown**, with a
+  concrete test and pass criterion.
 - **A spike gate.** Before the full build, the builder runs each Blocking
   Unknown as a real experiment. If any aren't confirmed with observed evidence,
   the run stops.
