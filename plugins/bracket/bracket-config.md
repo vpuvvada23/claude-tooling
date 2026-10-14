@@ -67,6 +67,34 @@ without their confirmation, and don't read or write the old location otherwise.
 Pass `model` and `effort` explicitly from the confirmed pre-flight config on **every** dispatch,
 including the spike-only builder pass. Don't rely on frontmatter or the session.
 
+## Fix round
+
+After the first verifier dispatch, read verification.md yourself. Don't rely only on the verdict
+line.
+
+- **The verdict is PASS, or `## Fix Requests` is "None.":** no fix round. Go to the final summary.
+  SPEC ISSUE and UNVERIFIED findings are the user's to decide, not the builder's, so an
+  UNCONFIRMED verdict never triggers a fix round.
+- **There is at least one fix request:** run exactly one fix round, even if `## For the User` also
+  has findings. Those carry into the final summary.
+  1. Dispatch the builder in **fix mode**, using the `builder` role's model and effort, with
+     spec.md, spike-results.md (if it exists), change-summary.md, and the `## Fix Requests`
+     section of verification.md. The builder appends `## Fix round 1` to change-summary.md.
+  2. Dispatch the verifier in **re-verify mode**, using the `verifier` role's model and effort,
+     with spec.md, the updated change-summary.md, spike-results.md (if it exists), and
+     verification.md. Save its output to `.claude/bracket-runs/<run-name>/reverification.md`.
+     Keep verification.md as the first round's record.
+  3. Stop. There is never a second fix round, whatever the re-verify verdict. Anything still
+     failing, any REGRESSION, and any DECLINED fix request goes to the user in the final summary,
+     with the choices: fix via a new builder dispatch, amend the spec, or abandon the run.
+
+A fix round is part of the same invocation. It uses the roles already confirmed at pre-flight, so
+don't ask again before dispatching it. The pre-flight table needs no extra rows for it.
+
+In the final summary, the verdict and headline come from the last verifier report
+(reverification.md if a fix round ran). Then add a short **Fix round** line: how many fix
+requests, how many FIXED, STILL FAILING, or DECLINED, and any REGRESSIONs, named.
+
 ## Run stats
 
 `.claude/bracket-runs/<run-name>/run-stats.md` is the run's record: the settings each
@@ -98,13 +126,14 @@ table lines up as plain text:
 Re-pad the section's earlier rows if a new row is wider.
 
 - One row per agent dispatch, and only agent dispatches. Every dispatch gets a row, including
-  re-dispatches after a FAIL and ones that do setup work before another agent can run (e.g. the
+  the fix round's builder and verifier and ones that do setup work before another agent can run (e.g. the
   spike pass building the app so a Blocking Unknown can be tested). Work that isn't an agent
   dispatch, such as the user or the orchestrating session running a step by hand, gets no row,
   since it has no model, effort, or usage. Its result goes in the relevant output file (e.g.
   spike-results.md).
 - Role: a name from the Role column of the default config table, with no qualifiers. The
-  spike-only builder pass is `spike`.
+  spike-only builder pass is `spike`. The fix round's dispatches are `builder` and `verifier`, and
+  their Outcome values tell them apart.
 - Tokens and duration come from the dispatch's completion usage (`subagent_tokens`,
   `duration_ms`). Format tokens as e.g. `48.2k` and duration as `Xm Ys`. If usage wasn't
   reported, write `n/a`. Never estimate.
@@ -117,8 +146,10 @@ Re-pad the section's earlier rows if a new row is wider.
   | plan-extensible | `plan written`, `error`                         |
   | plan-judge      | `spec written`, `halted: conflict`, `error`     |
   | spike           | `ALL CONFIRMED`, `GATE BLOCKED (BU-n)`, `error` |
-  | builder         | `built`, `error`                                |
+  | builder         | `built`, `fixed n/m`, `error`                   |
   | verifier        | `PASS`, `UNCONFIRMED`, `FAIL`, `error`          |
+
+  `fixed n/m` is the fix-mode builder: n of m fix requests FIXED.
 
 - Completed: local time (`HH:MM`). The section heading carries the date.
 - Never edit earlier sections.

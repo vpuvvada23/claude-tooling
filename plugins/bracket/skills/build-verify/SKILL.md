@@ -11,7 +11,8 @@ argument-hint: "<run-name> [--agents role=model[:effort],...]"
 ## Purpose
 Pick up an existing bracket run after planning is done. Reads the reconciled spec produced
 by /bracket:plan (or /bracket:full), runs its Blocking Unknowns as spikes, runs the
-builder against it, then the verifier, and presents the final summary for the user's review.
+builder against it, then the verifier (with at most one fix round), and presents the final
+summary for the user's review.
 
 ## Instructions
 
@@ -70,13 +71,13 @@ Save output to:
 The builder does not stage, commit, or push anything — it only writes a change summary.
 
 ### Step 6 — Dispatch the verifier
-Call the verifier subagent with spec.md, change-summary.md, and spike-results.md (if it exists).
+Call the verifier subagent in **verify mode** with spec.md, change-summary.md, and spike-results.md (if it exists).
 Save output to:
 - .claude/bracket-runs/<run-name>/verification.md
 
-**If the verifier reports FAIL or UNCONFIRMED: do NOT re-dispatch the builder automatically.**
-Present the findings to the user and let them decide: fix via a new builder dispatch, amend the
-spec, or abandon the run.
+Then follow **Fix round** in bracket-config.md. If verification.md has any fix requests, it runs
+one builder fix pass and one re-verify, saved to reverification.md, then stops. Never more than one
+fix round. Everything else goes to the user in Step 7.
 
 ### Step 7 — Present final summary to the user
 Do NOT commit or push anything. Lead with the honest state of the feature, not the file list:
@@ -84,13 +85,19 @@ Do NOT commit or push anything. Lead with the honest state of the feature, not t
    statement of what is unconfirmed or broken and what that means — e.g. "Structurally complete,
    but the core premise (BU-1: Photos lists the extension in its share sheet) is still untested.
    Until it is, we don't know the feature works at all." Don't let a verdict label carry that.
-2. Spike results (if any ran).
-3. Files changed (from change-summary.md).
-4. Remaining manual steps (from verification.md).
-5. Locations of all artifacts: spec.md, spike-results.md (if any),
-   change-summary.md, verification.md, run-stats.md.
-6. The run cost line (per bracket-config.md).
-7. Let the user know they can commit and push these changes themselves once they've reviewed
+   Take the verdict from the last verifier report (reverification.md if a fix round ran).
+2. Fix round (if one ran): the one-line tally per bracket-config.md, then anything still failing,
+   regressed, or DECLINED, with the choices: fix via a new builder dispatch, amend the spec, or
+   abandon the run.
+3. Findings for the user: the SPEC ISSUE and UNVERIFIED items from `## For the User`, each with the
+   decision it needs.
+4. Spike results (if any ran).
+5. Files changed (from change-summary.md).
+6. Remaining manual steps (from the last verifier report).
+7. Locations of all artifacts: spec.md, spike-results.md (if any),
+   change-summary.md, verification.md, reverification.md (if any), run-stats.md.
+8. The run cost line (per bracket-config.md).
+9. Let the user know they can commit and push these changes themselves once they've reviewed
    everything.
 
 If the user later reports the feature isn't working, reach for the available automation

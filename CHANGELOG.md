@@ -2,6 +2,12 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.5.0
+- The verifier never edits project code. It sorts each failure as a build defect (the spec was clear and the code got it wrong), a spec issue, or an unverified assumption, and writes numbered fix requests with repro steps for build defects.
+- Build defects get one automatic fix round. The builder fixes only the fix requests (a new fix mode) and checks each repro. The verifier then re-runs every check, marks each request FIXED or STILL FAILING, and flags regressions in `reverification.md`. The run then stops, with no second round.
+- Spec issues and unconfirmed assumptions still go straight to you. An UNCONFIRMED verdict never triggers a fix round.
+- `run-stats.md` adds a `fixed n/m` outcome for the fix-mode builder.
+
 ## bracket 0.4.5
 - Bracket asks where the run is headed when the idea doesn't make it clear: a prototype, a growing project (and how you expect it to grow), or not sure. The answer is saved at the top of `idea.md`.
 - The judge's bias follows that direction. Prototypes favor speed, except for hard-to-undo choices like the data model, public interfaces, and auth. Growing projects favor extensibility only along the expansion directions you named. "Not sure" keeps the previous extensibility default.

@@ -11,6 +11,8 @@ a reviewable file in your project.
 ```
 idea ─┬─► plan-speed ──────┐
       └─► plan-extensible ─┴─► plan-judge ─► spec.md ─► spike gate ─► builder ─► verifier
+                                                                         ▲           │
+                                                                         └ fix round ┘
 ```
 
 - **Two competing planners.** `plan-speed` drafts the minimal path to working
@@ -33,7 +35,13 @@ idea ─┬─► plan-speed ──────┐
   It must try automation (simulators, headless browsers, curl) before calling
   anything "manual only". Its verdict is **PASS**, **FAIL**, or
   **UNCONFIRMED**. UNCONFIRMED means the code is complete but its core premise
-  is still untested.
+  is still untested. It tests and never edits your code, and it sorts each
+  failure by who owns the fix.
+- **One fix round.** When the spec was clear and the build got it wrong, the
+  verifier hands the builder numbered fix requests with repro steps. The builder
+  fixes only those, and the verifier re-runs every check to catch regressions.
+  Then the run stops. Spec gaps and unconfirmed assumptions go to you, never
+  back to the builder.
 
 ## Requirements
 
@@ -68,10 +76,12 @@ dependencies. What its agents do in your project:
   tooling (`xcrun simctl`, `idb`), Android `adb`, Playwright or other headless
   browsers, `curl` against a local server, and throwaway scripts. Every command
   runs under your Claude Code permission settings.
-- **Modify your code.** The builder implements the approved spec.
+- **Modify your code.** The builder implements the approved spec and, in the
+  fix round, the verifier's fix requests. The verifier never modifies it.
 - **Write run files** to `.claude/bracket-runs/<run-name>/`: `idea.md`,
   `plan-speed.md`, `plan-extensible.md`, `spec.md`,
-  `spike-results.md`, `change-summary.md`, `verification.md`, `run-stats.md`.
+  `spike-results.md`, `change-summary.md`, `verification.md`,
+  `reverification.md` (after a fix round), `run-stats.md`.
 - **Never** stages, commits, or pushes, and never sends data to any service
   other than the Claude models your Claude Code session already uses. It reads
   no credentials or environment variables.
@@ -143,7 +153,9 @@ one-line run cost total. Open `run-stats.md` for the per-dispatch breakdown.
 - **Spikes are only as good as the available automation.** Some checks really
   do need physical hardware. In that case the run halts and asks you rather than
   guessing.
-- **No automatic retry.** A FAIL or UNCONFIRMED verdict stops for your decision.
+- **One fix round only.** Build defects get one automatic fix round. Anything
+  still failing after it, and every spec issue or unconfirmed assumption,
+  stops for your decision.
 - **Older specs halt.** Specs written before v0.2.0 have no
   `## Blocking Unknowns` section, so build-verify stops on them. Re-plan, or
   confirm the spec has no unverified external assumptions.
