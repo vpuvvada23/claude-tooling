@@ -2,6 +2,12 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.6.0
+- A quieter terminal. Each agent writes its own report to the run folder and returns a status of at most three lines, so full reports and change summaries no longer scroll through the terminal as file diffs. Between dispatches, the orchestrating session prints one line per stage.
+- Every command ends the same way: a short summary (verdict or state, coverage, why it's that verdict, what was built, run cost), then a numbered **Your next steps** list. Each step starts with a bold action and says why it matters. Manual steps, decisions, and unresolved fix requests are listed right there, so you don't have to open verification.md to find them. Halts (judge conflict, blocked spike gate) and `/bracket:plan` use the same shape.
+- When the judge halts, it writes the disagreement to `conflict.md` instead of spec.md.
+- In `run-stats.md`, new sections put Outcome last, so a long outcome no longer forces earlier rows to be re-padded. Existing sections keep their layout.
+
 ## bracket 0.5.1
 - Spike and verifier reports put a Coverage line under the verdict, listing each environment as PASS, FAIL, or NEEDS TESTING, e.g. "Simulator: PASS · Device: NEEDS TESTING (BU-1, BU-3)". The verifier also adds a Coverage table that names what's still needed. The final summary shows the Coverage line with the verdict.
 - Results that arrive after a dispatch, like a device session, the user's Manual Verification, or a spec amendment, now update the record in place. The report's top summary, verdict, Coverage line, and any outdated status headings are rewritten, and the new results go in a dated section.

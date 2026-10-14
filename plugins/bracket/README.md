@@ -67,6 +67,14 @@ Before anything is dispatched, Bracket asks any clarifying questions and shows a
 **pre-flight agent config** (role, model, effort) for the agents it's about to
 run. Confirm it or change it there.
 
+While it runs, the terminal stays quiet: one line per stage. Each agent writes
+its own report to the run folder and hands back a short status. Every command
+ends with a short summary (verdict, coverage, and why) followed by a numbered
+**Your next steps** list: what you need to do, in order, and why each step
+matters. For example, the device checks that would turn UNCONFIRMED into PASS,
+or a decision the spec left to you. The full reports stay in the run folder for
+when you want the detail.
+
 ## What it runs, writes, and sends
 
 Bracket is plain markdown prompts: no hooks, MCP servers, scripts, or
@@ -83,7 +91,8 @@ dependencies. What its agents do in your project:
 - **Write run files** to `.claude/bracket-runs/<run-name>/`: `idea.md`,
   `plan-speed.md`, `plan-extensible.md`, `spec.md`,
   `spike-results.md`, `change-summary.md`, `verification.md`,
-  `reverification.md` (after a fix round), `run-stats.md`.
+  `reverification.md` (after a fix round), `conflict.md` (if the judge halts),
+  `run-stats.md`.
 - **Never** stages, commits, or pushes, and never sends data to any service
   other than the Claude models your Claude Code session already uses. It reads
   no credentials or environment variables.

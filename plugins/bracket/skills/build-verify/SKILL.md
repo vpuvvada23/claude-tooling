@@ -18,7 +18,8 @@ summary for the user's review.
 
 Read `${CLAUDE_PLUGIN_ROOT}/bracket-config.md` first. It defines the default agent config,
 the `--agents` override syntax, the pre-flight confirmation, how to pass model and effort on
-each dispatch, and the run-stats format. Follow it throughout this skill.
+each dispatch, the run-stats format, how to keep the terminal quiet, and how to end the invocation.
+Follow it throughout this skill.
 
 ### Step 1 — Get the run name and overrides
 Parse the skill's arguments: the run name and any `--agents ...` overrides. If the run name is
@@ -49,15 +50,17 @@ Then start this invocation's section in the run stats record at
 .claude/bracket-runs/<run-name>/run-stats.md.
 
 ### Step 4 — Spike gate (only if Blocking Unknowns is not "None.")
-Dispatch the builder in **spike-only mode** with the full contents of spec.md, using the `spike`
-role's model and effort. Save output to:
+Dispatch the builder in **spike-only mode** with spec.md, using the `spike` role's model and
+effort. It writes:
 - .claude/bracket-runs/<run-name>/spike-results.md
 
 Read the report yourself. Do not rely only on its overall verdict line.
 - **Every Blocking Unknown CONFIRMED** with observed evidence: continue to Step 5.
-- **Any REFUTED or NOT RUN: STOP.** Do not dispatch the full build. Tell the user which BU failed,
-  what was observed, and the spec's "If it fails" fallback, and print the run cost line. Let
-  them decide: amend the spec, run the spike themselves, or abandon the run.
+- **Any REFUTED or NOT RUN: STOP.** Do not dispatch the full build. End the invocation (per
+  bracket-config.md) with state `GATE BLOCKED`. "Why" names each BU that isn't confirmed and what
+  was observed. The next steps cover how to run each NOT RUN spike, the spec's "If it fails"
+  fallback for each REFUTED one, and the decision: amend the spec, run the spike themselves, or
+  abandon the run.
 
 If the spikes are run later (by the user, or by you with them, for example on a device), or the
 spec is amended in response, follow **Keeping the record current** in bracket-config.md before
@@ -68,47 +71,31 @@ A spike is not confirmed by a template, a placeholder findings doc, or an assump
 code. If a "CONFIRMED" entry doesn't show what was actually run and observed, treat it as NOT RUN.
 
 ### Step 5 — Dispatch the builder
-Call the builder subagent in **build mode** with the full contents of spec.md and, if it exists,
-spike-results.md, using the `builder` role's model and effort.
-Save output to:
+Call the builder subagent in **build mode** with spec.md and, if it exists, spike-results.md,
+using the `builder` role's model and effort. It writes:
 - .claude/bracket-runs/<run-name>/change-summary.md
 
 The builder does not stage, commit, or push anything — it only writes a change summary.
 
 ### Step 6 — Dispatch the verifier
 Call the verifier subagent in **verify mode** with spec.md, change-summary.md, and spike-results.md (if it exists).
-Save output to:
+It writes:
 - .claude/bracket-runs/<run-name>/verification.md
 
 Then follow **Fix round** in bracket-config.md. If verification.md has any fix requests, it runs
 one builder fix pass and one re-verify, saved to reverification.md, then stops. Never more than one
 fix round. Everything else goes to the user in Step 7.
 
-### Step 7 — Present final summary to the user
-Do NOT commit or push anything. Lead with the honest state of the feature, not the file list:
-1. **Verdict and headline first.** If the verdict is UNCONFIRMED or FAIL, open with a plain
-   statement of what is unconfirmed or broken and what that means — e.g. "Structurally complete,
-   but the core premise (BU-1: Photos lists the extension in its share sheet) is still untested.
-   Until it is, we don't know the feature works at all." Don't let a verdict label carry that.
-   Take the verdict from the last verifier report (reverification.md if a fix round ran).
-   Give its Coverage line right after the verdict, so the user sees what passed where and what
-   still needs testing, for example "Simulator: PASS · Device: NEEDS TESTING (BU-1, BU-3)".
-2. Fix round (if one ran): the one-line tally per bracket-config.md, then anything still failing,
-   regressed, or DECLINED, with the choices: fix via a new builder dispatch, amend the spec, or
-   abandon the run.
-3. Findings for the user: the SPEC ISSUE and UNVERIFIED items from `## For the User`, each with the
-   decision it needs.
-4. Spike results (if any ran).
-5. Files changed (from change-summary.md).
-6. Remaining manual steps (from the last verifier report).
-7. Locations of all artifacts: spec.md, spike-results.md (if any),
-   change-summary.md, verification.md, reverification.md (if any), run-stats.md.
-8. The run cost line (per bracket-config.md).
-9. Let the user know they can commit and push these changes themselves once they've reviewed
-   everything.
+### Step 7 — End with the summary and next steps
+Do NOT commit or push anything. End the invocation per **Ending an invocation** in
+bracket-config.md, using the last verifier report (reverification.md if a fix round ran). Don't
+let a verdict label carry the meaning. "Why" says plainly what is unconfirmed or broken, e.g.
+"Structurally complete, but the core premise (BU-1: Photos lists the extension in its share sheet)
+is still untested. Until it is, we don't know the feature works at all."
 
 If the user later reports results (for example a `## Manual Verification` or a device session),
-update the record per **Keeping the record current** in bracket-config.md before replying.
+update the record per **Keeping the record current** in bracket-config.md, then reply in the
+same ending shape, with the verdict and next steps as they stand now.
 
 If the user later reports the feature isn't working, reach for the available automation
 (simulator tooling, browser automation, curl, logs) to reproduce and debug it yourself before

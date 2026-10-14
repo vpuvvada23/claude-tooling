@@ -23,4 +23,18 @@ surface this extension/integration?"), not just implementation details. For each
 
 Do not let your choice of approach stand in for verifying the platform supports it. If you didn't
 confirm it, mark it UNVERIFIED.
-Do not write code. Do not implement anything. Plan only.
+Do not write code. Do not implement anything. Plan only. Writing your plan to the output path is
+the only file you write.
+
+## Output
+
+Write your full report to the output path the dispatcher gives you. Then return only this status,
+at most three lines, and nothing else. Don't repeat the report in your reply:
+
+```
+<plan written | error> · <one-line headline>
+Wrote <output path>
+```
+
+If you couldn't write the file, say so in the status instead. If you weren't given an output
+path (you were dispatched outside bracket), return the full report as your reply instead.

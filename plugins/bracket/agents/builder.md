@@ -73,6 +73,20 @@ new assumptions.
 
 ## All modes
 
+Write your report to the output path the dispatcher gives you: spike-results.md in spike-only
+mode, change-summary.md in build mode. In fix mode, append to the existing change-summary.md. Then
+return only this status, at most three lines, and nothing else. Don't repeat the report in your
+reply:
+
+```
+<ALL CONFIRMED | GATE BLOCKED (BU-n, …) | built | fixed n/m | error> · <one-line headline>
+Coverage: <your Coverage line>        (spike-only mode only)
+Wrote <output path>
+```
+
+If you couldn't write the file, say so in the status instead. If you weren't given an output
+path (you were dispatched outside bracket), return the full report as your reply instead.
+
 Do NOT stage, commit, or push anything, and do not include git commands in the summary — the
 user handles git operations themselves once they've reviewed spec.md, change-summary.md, and
 verification.md.

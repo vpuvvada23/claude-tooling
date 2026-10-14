@@ -54,6 +54,10 @@ Output the final spec as markdown: Summary, Final approach, Files to touch, Step
 Tradeoffs resolved (or, if halting: Disagreement summary + why you're stopping and why this
 couldn't be resolved via the bias).
 
+Write a resolved spec to the output path you're given (spec.md). If you halt, write the
+disagreement to `conflict.md` in the same folder instead, and don't create spec.md. For each
+side, give the approach, what it gets right, and what it costs, so the user can choose.
+
 Every resolved spec must include a `## Blocking Unknowns` section, placed before the Step-by-step
 plan. If there are none, write `None.` and one line explaining why no external assumption is both
 unverified and load-bearing. Otherwise list each as:
@@ -73,3 +77,16 @@ build does not proceed unless every one is confirmed.
 End the spec with a `## Verification Checklist` section listing concrete checks the verifier can
 execute to confirm the spec was implemented correctly. Include one check per Blocking Unknown that
 exercises it end-to-end in the built feature.
+
+## Output
+
+After writing spec.md or conflict.md, return only this status, at most three lines, and nothing
+else. Don't repeat the report in your reply:
+
+```
+<spec written | halted: conflict | error> · <one-line headline>
+Wrote <output path>
+```
+
+If you couldn't write the file, say so in the status instead. If you weren't given an output
+path (you were dispatched outside bracket), return the full report as your reply instead.

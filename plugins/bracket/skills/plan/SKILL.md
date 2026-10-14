@@ -17,7 +17,8 @@ Stops after the judge writes spec.md. Builder and verifier are not invoked — u
 
 Read `${CLAUDE_PLUGIN_ROOT}/bracket-config.md` first. It defines the default agent config,
 the `--agents` override syntax, the pre-flight confirmation, how to pass model and effort on
-each dispatch, and the run-stats format. Follow it throughout this skill.
+each dispatch, the run-stats format, how to keep the terminal quiet, and how to end the invocation.
+Follow it throughout this skill.
 
 ### Step 1 — Get the run name, idea, and overrides
 Parse the skill's arguments: the run name, any `--agents ...` overrides, and the feature idea.
@@ -58,29 +59,27 @@ Start this invocation's section in the run stats record (per bracket-config.md):
 - .claude/bracket-runs/<run-name>/run-stats.md
 
 ### Step 4 — Dispatch both planners in parallel
-Call the plan-speed and plan-extensible subagents in parallel with the same feature idea (plus any
-clarifications from Step 2).
-Save their outputs to:
-- .claude/bracket-runs/<run-name>/plan-speed.md (plan-speed output)
-- .claude/bracket-runs/<run-name>/plan-extensible.md (plan-extensible output)
+Call the plan-speed and plan-extensible subagents in parallel, each with the path to idea.md
+(which holds the idea and clarifications from Step 2). Each writes its own plan to:
+- .claude/bracket-runs/<run-name>/plan-speed.md (plan-speed)
+- .claude/bracket-runs/<run-name>/plan-extensible.md (plan-extensible)
 
 ### Step 5 — Dispatch the judge
-Call plan-judge with both plans AND the original feature idea (plus clarifying answers from Step 2).
-Save output to:
-- .claude/bracket-runs/<run-name>/spec.md
+Call plan-judge with the paths to idea.md and both plans. It writes:
+- .claude/bracket-runs/<run-name>/spec.md, or conflict.md if it halts
 
-**If plan-judge halts due to a genuine irreconcilable conflict: STOP HERE.** Show the user the
-disagreement summary and the run cost line, and wait for their decision. Do not save a
-partial spec or proceed further.
+**If plan-judge halts due to a genuine irreconcilable conflict: STOP HERE.** Read conflict.md and
+end the invocation (per bracket-config.md) with state `HALTED: plan conflict`. The next steps lay
+out the disagreement as a decision with the options. Wait for their decision, and don't proceed
+further.
 
 ### Step 6 — Stop and report
 **Do NOT dispatch builder or verifier.** This skill's job ends when spec.md is saved.
 
-Tell the user:
-- The run name
-- That idea.md, plan-speed.md, plan-extensible.md, spec.md, and run-stats.md are
-  saved under .claude/bracket-runs/<run-name>/
-- The spec's Blocking Unknowns, listed up front — these run as spikes and gate the build. Note
-  any that need the user's hands-on involvement.
-- The run cost line (per bracket-config.md)
-- That they can run /bracket:build-verify with run name "<run-name>" when ready to build
+End the invocation per **Ending an invocation** in bracket-config.md, with state `SPEC READY`:
+- "Why" becomes a one-to-two sentence summary of the chosen approach and the bias the judge applied.
+- No Coverage or Built lines.
+- Next steps: one step per Blocking Unknown that needs the user's hands-on involvement (what to
+  have ready, e.g. a physical device), any decision the spec flagged for the user, then reviewing
+  spec.md, then running `/bracket:build-verify <run-name>`. Note that the remaining Blocking
+  Unknowns run automatically as spikes and gate the build.

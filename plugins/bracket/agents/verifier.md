@@ -136,3 +136,19 @@ if there's no Headline):
 
 There are no more fix rounds after this one, so list new or remaining BUILD DEFECTs in Fix Requests
 for the user to act on.
+
+## Output
+
+Write your full report to the output path the dispatcher gives you (verification.md, or
+reverification.md in re-verify mode). The run folder is outside the project's tree for the
+purpose of the no-edit rule above. Then return only this status, at most three lines, and nothing
+else. Don't repeat the report in your reply:
+
+```
+<PASS | UNCONFIRMED | FAIL | error> · <one-line headline>
+Coverage: <your Coverage line>
+Wrote <output path>
+```
+
+If you couldn't write the file, say so in the status instead. If you weren't given an output
+path (you were dispatched outside bracket), return the full report as your reply instead.

@@ -67,6 +67,41 @@ without their confirmation, and don't read or write the old location otherwise.
 Pass `model` and `effort` explicitly from the confirmed pre-flight config on **every** dispatch,
 including the spike-only builder pass. Don't rely on frontmatter or the session.
 
+Also pass the **output path** on every dispatch: the file in the run folder the agent writes its
+report to (plan-speed.md, spec.md, spike-results.md, change-summary.md, verification.md,
+reverification.md). Pass input files by path too, and let the agent read them, rather than pasting
+their contents into the prompt. The agent writes the full report itself and returns only a short
+status, so you never write report files yourself.
+
+## Terminal output
+
+The user wants a clean terminal: what's running, then a summary they can dig into. Everything
+detailed lives in the run folder.
+
+- **Never echo a report.** Don't paste an agent's report into the conversation, and don't write or
+  rewrite a report file yourself. The only exception is **Keeping the record current**. When you
+  need a report's contents (the spike gate, the fix round, the final summary), read the file.
+- **One line per stage.** Before each dispatch, print one line, e.g. `→ builder running (sonnet,
+  high)`. After it returns, print one line with its status, e.g. `✓ spec written · 3 Blocking
+  Unknowns` or `✗ spike gate blocked: BU-1 NOT RUN`. No other narration between dispatches.
+- **Quiet bookkeeping.** Make each run-stats.md update a single small edit, with no commentary
+  around it. Don't re-pad earlier rows (see **Run stats**).
+- Questions to the user (clarifying questions, pre-flight, a halt that needs a decision) and the
+  ending (see **Ending an invocation**) are the only longer messages.
+
+## Agent status line
+
+Every agent ends by returning a status of at most three lines, and nothing else:
+
+```
+<outcome value from the run-stats table> · <one-line headline>
+Coverage: <the report's Coverage line>        (spike and verifier only)
+Wrote <output path>
+```
+
+If the agent couldn't write the file, it says so in the status. Then stop and tell the user. Don't
+write the file yourself from the agent's reply.
+
 ## Fix round
 
 After the first verifier dispatch, read verification.md yourself. Don't rely only on the verdict
@@ -82,7 +117,7 @@ line.
      section of verification.md. The builder appends `## Fix round 1` to change-summary.md.
   2. Dispatch the verifier in **re-verify mode**, using the `verifier` role's model and effort,
      with spec.md, the updated change-summary.md, spike-results.md (if it exists), and
-     verification.md. Save its output to `.claude/bracket-runs/<run-name>/reverification.md`.
+     verification.md. It writes `.claude/bracket-runs/<run-name>/reverification.md`.
      Keep verification.md as the first round's record.
   3. Stop. There is never a second fix round, whatever the re-verify verdict. Anything still
      failing, any REGRESSION, and any DECLINED fix request goes to the user in the final summary,
@@ -111,19 +146,22 @@ without reporting it, so treat them as requested, not guaranteed.
 
 As soon as the user confirms the pre-flight config, append a section for the invocation, headed
 `## bracket:<skill> · <YYYY-MM-DD HH:MM>` (skill is `full`, `plan`, or `build-verify`), with the
-table header. Then, after each dispatch completes, append its row, with the columns padded so the
-table lines up as plain text:
+table header. Then, after each dispatch completes, append its row, padding each cell to the
+header's column width:
 
 ```
 ## bracket:plan · 2026-10-12 09:14
 
-| Role            | Model | Effort | Tokens | Duration | Outcome      | Completed |
-|-----------------|-------|--------|--------|----------|--------------|-----------|
-| plan-speed      | opus  | high   | 145.3k | 7m 39s   | plan written | 09:21     |
-| plan-extensible | opus  | high   | 186.1k | 11m 37s  | plan written | 09:25     |
+| Role            | Model  | Effort | Tokens | Duration | Completed | Outcome
+|-----------------|--------|--------|--------|----------|-----------|--------
+| plan-speed      | opus   | high   | 145.3k | 7m 39s   | 09:21     | plan written
+| plan-extensible | opus   | high   | 186.1k | 11m 37s  | 09:25     | plan written
 ```
 
-Re-pad the section's earlier rows if a new row is wider.
+Outcome is last and open-ended, so a long outcome never forces the earlier rows to be re-padded.
+Each new row is a one-line append. A pinned model ID longer than the Model column just runs
+wider. Don't re-pad other rows for it. Sections written before 0.6.0 keep their old layout. Don't
+convert them.
 
 - One row per agent dispatch, and only agent dispatches. Every dispatch gets a row, including
   the fix round's builder and verifier and ones that do setup work before another agent can run (e.g. the
@@ -232,8 +270,8 @@ This block and the Outcome updates are the only edits allowed in earlier parts o
 
 ## Run cost line
 
-At the end of every invocation, including ones that halt early, don't print the stats table.
-Print one line instead, totaling every row in run-stats.md (the whole run, not only this
+The ending (see **Ending an invocation**) includes the run cost, not the stats table.
+It is one line, totaling every row in run-stats.md (the whole run, not only this
 invocation):
 
 ```
@@ -243,3 +281,61 @@ Run cost so far: 1.48M tokens · 2h 16m agent time · 7 dispatches. Details in r
 Agent time sums durations across dispatches, so parallel planners count twice. It's the cost, not
 the wall-clock time. The orchestrating session's own tokens are not included. Print the full table
 only if the user asks for it.
+
+## Ending an invocation
+
+Every invocation ends with the same shape, whether it finished or halted early (a judge conflict,
+a blocked spike gate). It's short, and it ends with **what the user does next**, so they never
+have to dig through the run folder to find it. Read the last report to fill it in. Don't paste
+from it.
+
+```
+## <run-name>: <VERDICT or STATE>
+
+**Coverage:** <the last report's Coverage line>
+
+**Why it's <verdict>:** <1–3 plain sentences: what's proven, what isn't, and what that means for
+whether the feature works at all>
+
+**Fix round:** <tally, per Fix round> (only if one ran)
+
+**Built:** <one sentence on what changed> · <n> files · details in change-summary.md
+
+Run cost so far: … Details in run-stats.md.
+Run folder: .claude/bracket-runs/<run-name>/
+
+---
+
+### Your next steps
+
+1. **<Action, starting with a verb>.** <Why: what it unblocks or proves, e.g. "This is BU-1,
+   the core premise. Until it passes, the verdict stays UNCONFIRMED.">
+   - <the concrete steps, one line each>
+2. **Decide: <the question>.** <Why it needs you.> Options: **(a)** …, **(b)** …. I'd go with …
+   because …
+3. **Report back.** Tell me what you saw (or append `## Manual Verification` to verification.md),
+   and I'll update the record and the verdict.
+4. **Review and commit.** Nothing is staged or committed. Review the diff and commit when you're
+   happy.
+```
+
+**State.** Use the verdict (PASS, UNCONFIRMED, FAIL) when a verifier ran. Otherwise use `SPEC
+READY`, `HALTED: plan conflict`, or `GATE BLOCKED`. For a halt, "Why" explains what stopped the
+run, and "Built" is omitted. Omit Coverage when no spike or verifier report exists yet.
+
+**Next steps**, the part the user acts on:
+- Number them, in the order the user should do them. Put first whatever turns the verdict into
+  PASS, or unblocks the run.
+- Each step opens with a bold action and says why it matters. Explain "why it's still
+  UNCONFIRMED" in terms of the specific steps that would confirm it.
+- Include the actual actions. Condense the verifier's Manual Steps and still-needed checks into
+  one line each under the step they belong to, so the user doesn't have to open
+  verification.md to know what to do. Point to the file only for long command blocks or full
+  detail, naming the section, e.g. "full commands in verification.md → Manual Steps 6–10".
+- Every SPEC ISSUE, UNVERIFIED item, DECLINED or STILL FAILING fix request, and REGRESSION becomes
+  a step or sits under one. A decision lists the choices and your recommendation.
+- Leave out anything the user doesn't need to act on. Passing checks and the full file list stay
+  in the run folder.
+- Always end with the review-and-commit step after a build. After `/bracket:plan`, end with running
+  `/bracket:build-verify <run-name>`.
+- On a PASS with nothing left to do, steps are only "Review and commit". Say so plainly.
