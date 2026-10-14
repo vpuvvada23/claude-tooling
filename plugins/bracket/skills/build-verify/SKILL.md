@@ -59,6 +59,11 @@ Read the report yourself. Do not rely only on its overall verdict line.
   what was observed, and the spec's "If it fails" fallback, and print the run cost line. Let
   them decide: amend the spec, run the spike themselves, or abandon the run.
 
+If the spikes are run later (by the user, or by you with them, for example on a device), or the
+spec is amended in response, follow **Keeping the record current** in bracket-config.md before
+continuing. spike-results.md's summary, its BU statuses, and the spike row in run-stats.md must
+show the new results, not the original NOT RUN.
+
 A spike is not confirmed by a template, a placeholder findings doc, or an assumption written into
 code. If a "CONFIRMED" entry doesn't show what was actually run and observed, treat it as NOT RUN.
 
@@ -86,6 +91,8 @@ Do NOT commit or push anything. Lead with the honest state of the feature, not t
    but the core premise (BU-1: Photos lists the extension in its share sheet) is still untested.
    Until it is, we don't know the feature works at all." Don't let a verdict label carry that.
    Take the verdict from the last verifier report (reverification.md if a fix round ran).
+   Give its Coverage line right after the verdict, so the user sees what passed where and what
+   still needs testing, for example "Simulator: PASS · Device: NEEDS TESTING (BU-1, BU-3)".
 2. Fix round (if one ran): the one-line tally per bracket-config.md, then anything still failing,
    regressed, or DECLINED, with the choices: fix via a new builder dispatch, amend the spec, or
    abandon the run.
@@ -99,6 +106,9 @@ Do NOT commit or push anything. Lead with the honest state of the feature, not t
 8. The run cost line (per bracket-config.md).
 9. Let the user know they can commit and push these changes themselves once they've reviewed
    everything.
+
+If the user later reports results (for example a `## Manual Verification` or a device session),
+update the record per **Keeping the record current** in bracket-config.md before replying.
 
 If the user later reports the feature isn't working, reach for the available automation
 (simulator tooling, browser automation, curl, logs) to reproduce and debug it yourself before

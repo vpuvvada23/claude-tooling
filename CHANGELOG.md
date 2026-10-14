@@ -2,6 +2,11 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.5.1
+- Spike and verifier reports put a Coverage line under the verdict, listing each environment as PASS, FAIL, or NEEDS TESTING, e.g. "Simulator: PASS · Device: NEEDS TESTING (BU-1, BU-3)". The verifier also adds a Coverage table that names what's still needed. The final summary shows the Coverage line with the verdict.
+- Results that arrive after a dispatch, like a device session, the user's Manual Verification, or a spec amendment, now update the record in place. The report's top summary, verdict, Coverage line, and any outdated status headings are rewritten, and the new results go in a dated section.
+- `run-stats.md` gains a Current state block at the top. Spike and verifier outcomes include coverage. When later results change a row's outcome, the row keeps its original value and adds ` → <current> (MM-DD)`. `GATE BLOCKED` lists every BU that isn't CONFIRMED.
+
 ## bracket 0.5.0
 - The verifier never edits project code. It sorts each failure as a build defect (the spec was clear and the code got it wrong), a spec issue, or an unverified assumption, and writes numbered fix requests with repro steps for build defects.
 - Build defects get one automatic fix round. The builder fixes only the fix requests (a new fix mode) and checks each repro. The verifier then re-runs every check, marks each request FIXED or STILL FAILING, and flags regressions in `reverification.md`. The run then stops, with no second round.

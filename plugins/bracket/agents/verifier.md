@@ -79,10 +79,32 @@ builder gets a fix round.
 
 ## Report
 
-Open with the verdict. If it's UNCONFIRMED or FAIL, put a `## Headline` right after it stating in
-one or two plain sentences what is unconfirmed or broken and what that means for whether the
-feature works at all. Then: What was tested, How (automated vs manual, including automation
-attempted and abandoned), Results, Anything NOT covered that the user should be aware of.
+Open with the verdict and, on the next line, a **Coverage** line. The verdict says whether the
+feature is proven. The Coverage line says how far testing got, environment by environment:
+
+```
+**Verdict: UNCONFIRMED**
+**Coverage:** Simulator (iOS 27): PASS · Device: NEEDS TESTING (BU-1, BU-3, manual steps 6–10)
+```
+
+For each environment, give one status:
+- PASS: everything that needs it ran there and passed.
+- FAIL: something failed there.
+- NEEDS TESTING: it didn't run there yet. Say what blocked it and name the BUs or checks waiting
+  on it.
+
+Use the stack's real environments, for example build, unit tests, simulator, device, local
+server, or deploy target.
+
+If the verdict is UNCONFIRMED or FAIL, put a `## Headline` next, stating in one or two plain
+sentences what is unconfirmed or broken and what that means for whether the feature works at all.
+
+Then add a `## Coverage` table with one row per environment and the columns Environment |
+What ran there | Result | Still needed. "Still needed" names the exact checks or Manual Steps
+that would turn NEEDS TESTING into PASS.
+
+Then: What was tested, How (automated vs manual, including automation attempted and abandoned),
+Results, and anything NOT covered that the user should know about.
 
 Then these sections, in this order:
 

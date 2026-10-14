@@ -35,8 +35,10 @@ idea ─┬─► plan-speed ──────┐
   It must try automation (simulators, headless browsers, curl) before calling
   anything "manual only". Its verdict is **PASS**, **FAIL**, or
   **UNCONFIRMED**. UNCONFIRMED means the code is complete but its core premise
-  is still untested. It tests and never edits your code, and it sorts each
-  failure by who owns the fix.
+  is still untested. A Coverage line under the verdict says what passed where
+  and what still needs testing, e.g. "Simulator: PASS · Device: NEEDS TESTING".
+  It tests and never edits your code, and it sorts each failure by who owns the
+  fix.
 - **One fix round.** When the spec was clear and the build got it wrong, the
   verifier hands the builder numbered fix requests with repro steps. The builder
   fixes only those, and the verifier re-runs every check to catch regressions.
@@ -123,6 +125,13 @@ them strong before economizing anywhere else.
 `run-stats.md` records, for each command, the settings you confirmed and each
 dispatch's tokens, duration, and outcome. When a command finishes, it prints a
 one-line run cost total. Open `run-stats.md` for the per-dispatch breakdown.
+A Current state block at its top shows where the run stands now.
+
+Results that arrive after an agent finishes, like a device session you run
+by hand, update the run's files in place. The summaries at the top of
+`spike-results.md` and `verification.md`, the outcome in `run-stats.md`, and its
+Current state block all change to match, so nothing still says NOT RUN once
+it has run.
 
 ## Why it's built this way
 

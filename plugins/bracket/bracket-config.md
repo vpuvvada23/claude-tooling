@@ -137,22 +137,98 @@ Re-pad the section's earlier rows if a new row is wider.
 - Tokens and duration come from the dispatch's completion usage (`subagent_tokens`,
   `duration_ms`). Format tokens as e.g. `48.2k` and duration as `Xm Ys`. If usage wasn't
   reported, write `n/a`. Never estimate.
-- Outcome: exactly one value from this list for the role, with no extra detail (put details like
-  which plan a planner preferred in its own output file, not here):
+- Outcome: one value from this list for the role. Add no other detail (for example, which plan a
+  planner preferred goes in that planner's output file, not here):
 
-  | Role            | Outcome values                                  |
-  |-----------------|-------------------------------------------------|
-  | plan-speed      | `plan written`, `error`                         |
-  | plan-extensible | `plan written`, `error`                         |
-  | plan-judge      | `spec written`, `halted: conflict`, `error`     |
-  | spike           | `ALL CONFIRMED`, `GATE BLOCKED (BU-n)`, `error` |
-  | builder         | `built`, `fixed n/m`, `error`                   |
-  | verifier        | `PASS`, `UNCONFIRMED`, `FAIL`, `error`          |
+  | Role            | Outcome values                                                      |
+  |-----------------|---------------------------------------------------------------------|
+  | plan-speed      | `plan written`, `error`                                             |
+  | plan-extensible | `plan written`, `error`                                             |
+  | plan-judge      | `spec written`, `halted: conflict`, `error`                         |
+  | spike           | `ALL CONFIRMED`, `GATE BLOCKED (BU-n, …)` + coverage, `error`       |
+  | builder         | `built`, `fixed n/m`, `error`                                       |
+  | verifier        | `PASS`, `UNCONFIRMED`, `FAIL` + coverage, `error`                   |
 
-  `fixed n/m` is the fix-mode builder: n of m fix requests FIXED.
+  `fixed n/m` is the fix-mode builder: n of m fix requests FIXED. `GATE BLOCKED` lists every BU
+  that isn't CONFIRMED, not only the first.
+
+  **Coverage** comes from the report's Coverage line (see **Coverage** below). Add it to spike
+  and verifier outcomes whenever the report names more than one environment, or names one as
+  NEEDS TESTING. Use short environment names, for example
+  `UNCONFIRMED · sim PASS · device NEEDS TESTING` or
+  `GATE BLOCKED (BU-1, BU-3) · build PASS · device NEEDS TESTING`.
 
 - Completed: local time (`HH:MM`). The section heading carries the date.
-- Never edit earlier sections.
+- Don't edit earlier sections, except for the two updates allowed in **Keeping the record
+  current**: an Outcome update and the Current state block.
+
+## Coverage
+
+A verdict on its own doesn't say how far testing got. UNCONFIRMED can mean nothing ran, or that
+everything passed on the simulator and only a device check remains. So every spike report and
+verifier report puts a **Coverage** line right under its verdict. The line lists each environment
+the checks needed, with one status each:
+
+- `PASS`: every check that needs this environment ran here and passed.
+- `FAIL`: at least one check failed here.
+- `NEEDS TESTING`: nothing ran here yet. Say what blocked it, and name the BUs or checks that need it.
+
+```
+**Verdict: UNCONFIRMED**
+**Coverage:** Simulator (iOS 27): PASS · Device: NEEDS TESTING (BU-1, BU-3, manual steps 6–10)
+```
+
+Environments are whatever the stack uses, for example build, unit tests, simulator, device,
+local server, staging, or production deploy. The verdict rules stay the same. Coverage explains
+the verdict and never replaces it.
+
+## Keeping the record current
+
+A run's files must show where the run stands now, not where it stood when each agent finished.
+Results often arrive after the dispatch that wrote the report, for example:
+
+- a device session run by hand,
+- a spike re-run by the orchestrating session,
+- the user's `## Manual Verification`,
+- a spec amendment.
+
+Whenever new results arrive, in this conversation or a later one, the orchestrating session
+updates the record before it reports back to the user:
+
+1. **The report that covers those results** (spike-results.md, verification.md, or
+   reverification.md):
+   - Add the new results as a dated section at the end, saying who ran them and what was
+     observed.
+   - Rewrite the summary at the top to match: the status table, the overall verdict, and the
+     Coverage line. Add a note `Updated YYYY-MM-DD: <what changed>` under the verdict.
+   - Fix every status further down that is now out of date (for example a `### BU-1: NOT RUN`
+     heading). Change it to the current status and point it to the dated section. A reader
+     should never meet a status that's no longer true.
+   - Change the verifier's verdict only when the new results meet the verdict rules on their own
+     terms. For example, UNCONFIRMED becomes PASS only if every NEEDS TESTING item has now been
+     observed passing. Cite the evidence.
+2. **run-stats.md:**
+   - Update the Outcome of the dispatch row whose result changed. Keep its original value and add
+     ` → <current> (MM-DD)`, for example
+     `GATE BLOCKED (BU-1, BU-2, BU-3) · device NEEDS TESTING → device: BU-1, BU-3 CONFIRMED; BU-2 REFUTED (10-13)`.
+   - Don't change any other column, and don't add a row for work that wasn't an agent dispatch.
+   - Rewrite the **Current state** block (below).
+
+### Current state block
+
+run-stats.md has a `## Current state` block between the file header and the first invocation
+section. Create it with the first spike or verifier row, and rewrite it each time a row is added
+or an Outcome changes. It has one line per stage that has run, and it always shows the latest
+status:
+
+```
+## Current state · updated 2026-10-14 09:50
+
+- Spike gate: cleared on device 10-13. BU-1 and BU-3 CONFIRMED, BU-2 REFUTED (fallback per A1).
+- Verification: UNCONFIRMED · Simulator PASS · Device NEEDS TESTING (BU-1, BU-3 in the built app).
+```
+
+This block and the Outcome updates are the only edits allowed in earlier parts of run-stats.md.
 
 ## Run cost line
 

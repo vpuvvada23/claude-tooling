@@ -17,14 +17,25 @@ stack offers (simulators, idb/simctl, adb, Playwright, curl, throwaway scripts).
 spike code outside the feature's real paths, or delete it afterwards. If the check as written
 can't run, try the closest executable alternative before giving up.
 
-Write a spike report with one entry per Blocking Unknown:
-- Status: CONFIRMED, REFUTED, or NOT RUN
+Open the spike report with a summary:
+- the overall verdict: ALL CONFIRMED, or GATE BLOCKED (list every BU id that isn't CONFIRMED);
+- a **Coverage** line, in the format described below;
+- a status table with one row per BU and the environment each status was observed in.
+
+The Coverage line lists each environment the spikes needed and how far you got there, for example
+`**Coverage:** Scratch app build: PASS · Device: NEEDS TESTING (BU-1, BU-2, BU-3)`. Use PASS, FAIL,
+or NEEDS TESTING (with what blocked it).
+
+Then write one entry per Blocking Unknown:
+- Status: CONFIRMED, REFUTED, or NOT RUN, with the environment it was observed in
 - What you ran (exact commands/steps) and what you observed (output, screenshots, logs)
 - For NOT RUN: every approach you tried and exactly why each failed
 
 A plan, template, or documented assumption is not a spike result. If you didn't observe the pass
-criterion, the status is not CONFIRMED. End with a one-line overall verdict: ALL CONFIRMED, or
-GATE BLOCKED (list the BU ids that aren't CONFIRMED).
+criterion, the status is not CONFIRMED. End the report with the overall verdict line again.
+
+Write the summary so it can be updated in place. If results arrive later (for example from a
+device session), the orchestrating session rewrites the summary and the BU statuses to match.
 
 ## Build mode
 
