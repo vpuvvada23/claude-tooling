@@ -53,6 +53,23 @@ idea ─┬─► plan-speed ──────┐
   v2.1.292+ is required for per-run effort overrides.
 - Add `.claude/bracket-runs/` to each project's `.gitignore`.
 
+## Install
+
+In a terminal:
+
+```
+claude plugin install bracket --marketplace vpuvvada23/claude-tooling
+```
+
+Or inside Claude Code:
+
+```
+/plugin install bracket --marketplace vpuvvada23/claude-tooling
+```
+
+Restart Claude Code after installing. To update later, run
+`claude plugin update bracket@vinnie-tools` and restart.
+
 ## Usage
 
 ```
