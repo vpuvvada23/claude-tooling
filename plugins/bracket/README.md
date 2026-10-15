@@ -30,7 +30,11 @@ idea ─┬─► plan-speed ──────┐
   Unknown as a real experiment. If any aren't confirmed with observed evidence,
   the run stops.
 - **A builder** implements the spec exactly and writes a change summary. It
-  never stages, commits, or pushes.
+  never stages, commits, or pushes. When the spec leaves a small detail open,
+  it makes a minimal assumption and flags it. When the spec's approach won't
+  work or needs a bigger decision, it stops. The verifier runs only on a
+  finished build, and every assumption or blocker is a step in the summary at
+  the end, not just a note in the change summary.
 - **A verifier** checks git tracking, spec conformance, and runtime behavior.
   It must try automation (simulators, headless browsers, curl) before calling
   anything "manual only". Its verdict is **PASS**, **FAIL**, or

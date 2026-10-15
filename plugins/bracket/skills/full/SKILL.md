@@ -104,7 +104,12 @@ Call builder in **build mode** with spec.md and, if it exists, spike-results.md,
 writes a change summary, to:
 - .claude/bracket-runs/<run-name>/change-summary.md
 
-### Step 8 — Dispatch the verifier
+Then follow **Build gate** in bracket-config.md. Read the `## Spec Issues` section of
+change-summary.md. If the builder is BLOCKED or errored, STOP: don't dispatch the verifier. End the
+invocation with state `BUILD BLOCKED` (or `BUILD ERROR`), with each BLOCKED issue as a decision in
+the next steps. Otherwise, carry any ASSUMED issues through to the ending.
+
+### Step 8 — Dispatch the verifier (only if the build gate passed)
 Call the verifier subagent in **verify mode** with spec.md, change-summary.md, and spike-results.md (if it exists).
 It writes:
 - .claude/bracket-runs/<run-name>/verification.md

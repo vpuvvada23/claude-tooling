@@ -2,6 +2,12 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.7.0
+- The builder records every gap it hits in the spec as a numbered Spec Issue, at the top of change-summary.md. **ASSUMED** means it filled in a small detail and kept going. **BLOCKED** means the spec's approach won't work, or it needs a decision bigger than a small assumption, so the builder stops and leaves its partial work in place.
+- A blocked or failed build no longer goes on to verification. The run ends with state `BUILD BLOCKED` (or `BUILD ERROR`), and each blocker is a decision in Your next steps: amend the spec and resume, re-plan, or abandon. When you decide, your decision is added to spec.md under `## Amendments` and the builder picks up where it stopped.
+- Assumptions are no longer buried in change-summary.md. The terminal flags them as soon as the builder returns, the ending has a **⚠ Spec issues** line, and a **Confirm the builder's assumptions** step lists each one.
+- New builder outcomes in `run-stats.md`: `built · n ASSUMED` and `BLOCKED (SI-n, …)`.
+
 ## bracket 0.6.0
 - A quieter terminal. Each agent writes its own report to the run folder and returns a status of at most three lines, so full reports and change summaries no longer scroll through the terminal as file diffs. Between dispatches, the orchestrating session prints one line per stage.
 - Every command ends the same way: a short summary (verdict or state, coverage, why it's that verdict, what was built, run cost), then a numbered **Your next steps** list. Each step starts with a bold action and says why it matters. Manual steps, decisions, and unresolved fix requests are listed right there, so you don't have to open verification.md to find them. Halts (judge conflict, blocked spike gate) and `/bracket:plan` use the same shape.

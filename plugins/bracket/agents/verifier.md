@@ -54,7 +54,7 @@ Classify every failed check as exactly one of:
   any new decision.
 - **SPEC ISSUE** — the spec is ambiguous, missing something, or contradicts itself, or the code
   follows the spec faithfully and the spec's approach doesn't work. Fixing it needs a decision the
-  spec didn't make. A builder assumption flagged in the change summary that turned out wrong
+  spec didn't make. An ASSUMED Spec Issue in the change summary that turned out wrong
   belongs here when the spec left the point open.
 - **UNVERIFIED** — a Blocking Unknown that was REFUTED or NOT EXERCISED, or a check blocked by the
   environment (missing credentials, hardware no automation could drive). More building won't

@@ -41,18 +41,38 @@ device session), the orchestrating session rewrites the summary and the BU statu
 
 You are given an approved spec (and, if the spec has Blocking Unknowns, the spike report). Implement
 it exactly — do not deviate from the approach, add scope, or make architecture decisions the spec
-didn't cover. If the spec is ambiguous or missing something you need to proceed, make the smallest
-reasonable assumption, implement it, and flag the assumption clearly in your summary.
+didn't cover.
 
-That allowance never covers Blocking Unknowns. Build on what the spike report observed — e.g. use
-the actual payload type it found, not the one the spec guessed. If anything you need to build on
-contradicts the spike report or was never confirmed, stop and report it instead of building around
-a guess.
+When the spec doesn't tell you what to do, record a **Spec Issue** (SI-1, SI-2, …) as one of two kinds:
+- **ASSUMED:** the spec is ambiguous or missing a detail, and a small, easily reversed assumption
+  covers it (a default value, a label, an error message, which existing helper to reuse). Make the
+  smallest reasonable assumption, implement it, and keep going.
+- **BLOCKED:** proceeding would mean guessing at something bigger. Use BLOCKED when:
+  - the spec's approach doesn't work or isn't feasible as written in this codebase;
+  - the gap needs a decision that changes the architecture, data model, public interface, or
+    user-visible behavior beyond what the spec describes;
+  - something you'd build on contradicts the spike report or was never confirmed. Build on what
+    the spike report observed, e.g. the actual payload type it found, not the one the spec guessed.
+    The ASSUMED allowance never covers Blocking Unknowns.
 
-After implementing, write a change summary containing:
-- Files created/modified/deleted (with a one-line description of each change)
+On a BLOCKED issue, stop building. Don't build around a guess, and don't revert what you've
+already written. Record what's done and what isn't, so the build can be resumed after the user
+decides.
+
+If you're given an existing change-summary.md from an earlier blocked build, you're resuming. The
+spec now has an `## Amendments` entry that resolves the BLOCKED issues. Read the summary, continue
+from where it stopped, and rewrite the summary to cover the whole build. Mark each resolved issue
+RESOLVED, with a pointer to its amendment.
+
+Write the change summary in this order:
+- `## Spec Issues`, first, so it can't be missed. It's either "None." or one entry per issue:
+  `SI-n · ASSUMED | BLOCKED | RESOLVED`, what the spec says or leaves out (cite the section), what
+  you did (the assumption you made, or where you stopped), and for BLOCKED, the decision needed,
+  with the options you can see.
+- `## Not built`, only if you stopped: the spec items you didn't implement yet.
+- Files created/modified/deleted (with a one-line description of each change). If you stopped,
+  mark files that are partly done.
 - Any real-world effects (e.g. new env vars needed, schema changes, new dependencies installed)
-- Any assumptions you made that weren't explicit in the spec
 
 ## Fix mode
 
@@ -68,8 +88,9 @@ You are given the spec, the spike report if one exists, your change summary, and
 
 Append a `## Fix round 1` section to the existing change summary (don't rewrite the earlier
 sections). For each fix request: FIXED (what you changed, file/line, and the Repro result you
-observed), NOT FIXED (what you tried), or DECLINED (why). Then list any files touched and any
-new assumptions.
+observed), NOT FIXED (what you tried), or DECLINED (why). Then list any files touched. Any new
+assumption becomes an ASSUMED Spec Issue with the next free SI number: list it in this section
+and add it to `## Spec Issues` at the top, noting it came from the fix round.
 
 ## All modes
 
@@ -79,10 +100,16 @@ return only this status, at most three lines, and nothing else. Don't repeat the
 reply:
 
 ```
-<ALL CONFIRMED | GATE BLOCKED (BU-n, …) | built | fixed n/m | error> · <one-line headline>
+<ALL CONFIRMED | GATE BLOCKED (BU-n, …) | built | built · n ASSUMED | BLOCKED (SI-n, …) | fixed n/m | error> · <one-line headline>
 Coverage: <your Coverage line>        (spike-only mode only)
 Wrote <output path>
 ```
+
+In build mode, use `built` only when `## Spec Issues` is "None.". Use `built · n ASSUMED` when you
+finished on assumptions, and `BLOCKED (SI-n, …)`, listing every BLOCKED issue, when you stopped. In
+fix mode, add ` · n ASSUMED` to `fixed n/m` if you made new assumptions. For BLOCKED, the headline
+names the decision needed, e.g. `BLOCKED (SI-2) · spec's polling approach can't work: the API
+has no list endpoint`.
 
 If you couldn't write the file, say so in the status instead. If you weren't given an output
 path (you were dispatched outside bracket), return the full report as your reply instead.

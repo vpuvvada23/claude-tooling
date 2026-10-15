@@ -102,6 +102,28 @@ Wrote <output path>
 If the agent couldn't write the file, it says so in the status. Then stop and tell the user. Don't
 write the file yourself from the agent's reply.
 
+## Build gate
+
+After the build-mode builder returns, read the `## Spec Issues` section of change-summary.md
+yourself. Don't rely only on the status line. The verifier runs only on a finished build:
+
+- **`built` or `built · n ASSUMED`, and no BLOCKED issue in the summary:** dispatch the verifier.
+  If there are ASSUMED issues, the after-dispatch line names them, e.g.
+  `✓ built · ⚠ 2 assumptions (SI-1, SI-3), confirm at the end`.
+- **`BLOCKED`, any BLOCKED issue in the summary, or `error`: STOP.** Don't dispatch the verifier,
+  since it would only test a half-built feature. Print `✗ build blocked: SI-2 <the decision
+  needed>` (or `✗ builder error: <headline>`), then end the invocation with state `BUILD BLOCKED`
+  (or `BUILD ERROR`). The partial changes stay in the working tree.
+
+If the user resolves a BLOCKED issue in conversation, add their decision to spec.md as a dated
+entry under `## Amendments` at the end (create the section if needed), naming the SI it resolves.
+That edit and **Keeping the record current** are the only times you write to a run file yourself.
+Then dispatch the builder in build mode again, with spec.md, spike-results.md (if it exists), and
+the existing change-summary.md, so it resumes rather than starting over. It gets its own
+run-stats row. From there the run continues as normal: build gate, verifier, fix round, ending.
+If the decision changes a Blocking Unknown, or is too big to record as an amendment, recommend
+re-planning instead.
+
 ## Fix round
 
 After the first verifier dispatch, read verification.md yourself. Don't rely only on the verdict
@@ -184,11 +206,11 @@ convert them.
   | plan-extensible | `plan written`, `error`                                             |
   | plan-judge      | `spec written`, `halted: conflict`, `error`                         |
   | spike           | `ALL CONFIRMED`, `GATE BLOCKED (BU-n, …)` + coverage, `error`       |
-  | builder         | `built`, `fixed n/m`, `error`                                       |
+  | builder         | `built`, `built · n ASSUMED`, `BLOCKED (SI-n, …)`, `fixed n/m` (+ ` · n ASSUMED`), `error` |
   | verifier        | `PASS`, `UNCONFIRMED`, `FAIL` + coverage, `error`                   |
 
   `fixed n/m` is the fix-mode builder: n of m fix requests FIXED. `GATE BLOCKED` lists every BU
-  that isn't CONFIRMED, not only the first.
+  that isn't CONFIRMED, not only the first. `BLOCKED` lists every BLOCKED Spec Issue.
 
   **Coverage** comes from the report's Coverage line (see **Coverage** below). Add it to spike
   and verifier outcomes whenever the report names more than one environment, or names one as
@@ -297,6 +319,8 @@ from it.
 **Why it's <verdict>:** <1–3 plain sentences: what's proven, what isn't, and what that means for
 whether the feature works at all>
 
+**⚠ Spec issues:** <n BLOCKED, n ASSUMED: SI ids with a few words each> (only if any)
+
 **Fix round:** <tally, per Fix round> (only if one ran)
 
 **Built:** <one sentence on what changed> · <n> files · details in change-summary.md
@@ -320,8 +344,22 @@ Run folder: .claude/bracket-runs/<run-name>/
 ```
 
 **State.** Use the verdict (PASS, UNCONFIRMED, FAIL) when a verifier ran. Otherwise use `SPEC
-READY`, `HALTED: plan conflict`, or `GATE BLOCKED`. For a halt, "Why" explains what stopped the
-run, and "Built" is omitted. Omit Coverage when no spike or verifier report exists yet.
+READY`, `HALTED: plan conflict`, `GATE BLOCKED`, `BUILD BLOCKED`, or `BUILD ERROR`. For a halt,
+"Why" explains what stopped the run, and "Built" is omitted, except for `BUILD BLOCKED` and
+`BUILD ERROR`, where it becomes **Built so far:**, noting what's done, what isn't, and that the
+partial changes are uncommitted in the working tree. Omit Coverage when no spike or verifier
+report exists yet.
+
+**Spec issues.** The builder's Spec Issues (change-summary.md → `## Spec Issues`, including any
+from the fix round) always reach the ending. Never leave them only in the file:
+- Each BLOCKED issue is a **Decide** step, first in the list: the gap in one line, the options
+  the builder named, and your recommendation. Choices always include amending the spec (I record
+  the decision in spec.md and resume the build), re-planning with `/bracket:plan`, or abandoning the
+  run and discarding the partial changes.
+- ASSUMED issues share one step, **Confirm the builder's assumptions**, with one line each: the
+  SI id, what the spec left open, and what the builder chose. Say why it matters: the verifier
+  checked the code against these choices, not against what you intended. If one is wrong, say
+  so and it becomes a spec amendment plus a builder fix.
 
 **Next steps**, the part the user acts on:
 - Number them, in the order the user should do them. Put first whatever turns the verdict into
@@ -332,10 +370,11 @@ run, and "Built" is omitted. Omit Coverage when no spike or verifier report exis
   one line each under the step they belong to, so the user doesn't have to open
   verification.md to know what to do. Point to the file only for long command blocks or full
   detail, naming the section, e.g. "full commands in verification.md → Manual Steps 6–10".
-- Every SPEC ISSUE, UNVERIFIED item, DECLINED or STILL FAILING fix request, and REGRESSION becomes
-  a step or sits under one. A decision lists the choices and your recommendation.
+- Every builder Spec Issue (see above), verifier SPEC ISSUE, UNVERIFIED item, DECLINED or STILL
+  FAILING fix request, and REGRESSION becomes a step or sits under one. A decision lists the choices and your recommendation.
 - Leave out anything the user doesn't need to act on. Passing checks and the full file list stay
   in the run folder.
-- Always end with the review-and-commit step after a build. After `/bracket:plan`, end with running
+- Always end with the review-and-commit step after a build, except after `BUILD BLOCKED` or
+  `BUILD ERROR`, where the code is unfinished and shouldn't be committed. After `/bracket:plan`, end with running
   `/bracket:build-verify <run-name>`.
 - On a PASS with nothing left to do, steps are only "Review and commit". Say so plainly.
