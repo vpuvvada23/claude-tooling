@@ -64,11 +64,13 @@ claude plugin install bracket --marketplace vpuvvada23/claude-tooling
 Or inside Claude Code:
 
 ```
-/plugin install bracket --marketplace vpuvvada23/claude-tooling
+/plugin marketplace add vpuvvada23/claude-tooling
+/plugin install bracket@vinnie-tools
 ```
 
 Restart Claude Code after installing. To update later, run
-`claude plugin update bracket@vinnie-tools` and restart.
+`claude plugin marketplace update vinnie-tools`, then
+`claude plugin update bracket@vinnie-tools`, and restart.
 
 ## Usage
 
