@@ -253,7 +253,9 @@ verifier report puts a **Coverage** line right under its verdict. The line lists
 the checks needed, with one status each:
 
 - `PASS`: every check that needs this environment ran here and passed.
-- `FAIL`: at least one check failed here.
+- `FAIL`: at least one check failed here. Failures the verifier marked PRE-EXISTING don't count.
+  If they're the only ones, the status is `PASS` with a note, e.g.
+  `Unit tests: PASS (2 failing before this build)`.
 - `NEEDS TESTING`: nothing ran here yet. Say what blocked it, and name the BUs or checks that need it.
 
 ```
@@ -343,6 +345,8 @@ from it.
 whether the feature works at all>
 
 **⚠ Spec issues:** <n BLOCKED, n ASSUMED: SI ids with a few words each> (only if any)
+
+**Pre-existing bugs:** <n> found, not caused by this build: <test names or a few words each> (only if any)
 
 **Fix round:** <tally, per Fix round> (only if one ran)
 

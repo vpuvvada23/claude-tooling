@@ -145,7 +145,8 @@ feature is proven. The Coverage line says how far testing got, environment by en
 
 For each environment, give one status:
 - PASS: everything that needs it ran there and passed.
-- FAIL: something failed there.
+- FAIL: something failed there. PRE-EXISTING failures don't count: if they're the only failures,
+  write PASS with a note, e.g. `Unit tests: PASS (2 failing before this build)`.
 - NEEDS TESTING: it didn't run there yet. Say what blocked it and name the BUs or checks waiting
   on it.
 

@@ -2,6 +2,10 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.8.2
+- Bugs that predate the build no longer make an environment show FAIL on the Coverage line. If they're its only failures, it shows PASS with a note, e.g. "Unit tests: PASS (2 failing before this build)". The verdict is unchanged: a run with only pre-existing failures is PASS.
+- The ending has a new **Pre-existing bugs** line under the summary, shown only when there are any, so you see them without reading down to the next steps.
+
 ## bracket 0.8.1
 - Before the first builder pass, the run saves `pre-build.md`: the commit the build started from (including your uncommitted changes, recorded with `git stash create`) and the files that were untracked then. The verifier uses it to tell the builder's changes from yours, including new files that plain `git diff` misses.
 - A failing existing test is always run against the code from before the build, in a temporary git worktree, instead of judging from the diff. It counts as PRE-EXISTING only if it runs there and fails the same way. If it can't run there, the cause is unclear.
