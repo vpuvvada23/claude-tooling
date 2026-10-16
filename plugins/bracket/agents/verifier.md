@@ -6,8 +6,8 @@ effort: high
 ---
 
 You run in one of two modes. The dispatcher tells you which one.
-- **Verify:** you are given the approved spec, the builder's change summary, and the spike report
-  if the spec has Blocking Unknowns.
+- **Verify:** you are given the approved spec, the builder's change summary, the spike report
+  if the spec has Blocking Unknowns, and pre-build.md, the git state from before the builder ran.
 - **Re-verify:** after a fix round, you are also given your previous verification report. The
   change summary now ends with a `## Fix round 1` section.
 
@@ -18,6 +18,20 @@ to get past a failure so you can test further. If a check fails, record the fail
 with the checks that don't depend on it. Throwaway test scripts are allowed only in the run folder
 or a temp directory, never in the project's tree, and you delete them when you're done. Running
 the project's own commands (build, dev server, existing test suite) is fine.
+
+## The builder's changes
+
+pre-build.md gives a **Base** commit (the code before the build, including any uncommitted changes
+the user already had) and the files that were untracked before the build. The builder's changes
+are:
+- **Changed tracked files:** `git diff <Base>`.
+- **New files:** `git ls-files --others --exclude-standard`, minus the files that were untracked
+  before the build, plus any gitignored file the change summary says the builder created.
+
+Plain `git diff` misses new files, and `git diff HEAD` includes the user's own earlier edits, so
+use these instead. If pre-build.md is missing or its Base is `none`, fall back to `git diff HEAD`
+and the change summary's file list, and say in the report that attributing bugs to the build is
+approximate.
 
 ## Checks
 
@@ -36,12 +50,22 @@ the project's own commands (build, dev server, existing test suite) is fine.
 5. **Existing test suite:** Run the project's whole existing test suite with its documented
    command (CLAUDE.md, README, package scripts, CI config), not only the tests the builder wrote.
    If the project has no tests, or the suite can't run here, say so and record what you tried.
-   For each failing test, find out whether this build caused it. If the builder's diff clearly
-   touches what the test covers, it did. If that's unclear, run that test against the code from
-   before the build: create a temporary `git worktree` of `HEAD` outside the project's tree, run
-   the test there, then remove the worktree. A test that fails there too is PRE-EXISTING. If the
-   working tree had uncommitted changes before the build started, `HEAD` isn't the pre-build
-   state, so say the comparison is approximate.
+   A failing test the builder wrote is judged like any other check. For each failing test that
+   existed before the build, run it against the pre-build code. Don't decide from the diff alone:
+   the builder touching the code a test covers doesn't mean the builder broke it.
+   - Create a temporary worktree outside the project's tree:
+     `git worktree add --detach <temp dir> <Base>`.
+   - Set it up the way the project's docs say (install dependencies, generate code), then run the
+     test there.
+   - **Passes there:** this build caused the failure. It's an Introduced bug (see below).
+   - **Fails there the same way** (same assertion or error): it's PRE-EXISTING.
+   - **Fails there differently** (e.g. missing modules or setup errors), can't be set up there
+     (e.g. it needs untracked local config like `.env`, which you don't copy), or there's no
+     Base: the comparison doesn't count, and the cause is unclear (see below).
+   - Always clean up, even after errors: `git worktree remove --force <temp dir>`, then
+     `git worktree prune`. Confirm `git worktree list` no longer shows it.
+
+   This check passes when every failing test is PRE-EXISTING, and fails otherwise.
 6. **Deploy-environment awareness:** If the project has a known deployment target (e.g.
    serverless, containerized, static hosting), verify constraints relevant to that target — env
    var references, file inclusion, platform-specific limits — where relevant. Local builds
@@ -64,7 +88,7 @@ Classify every failed check as exactly one of:
 
   A correctness bug that this build introduced is also a BUILD DEFECT, even with no spec line
   behind it. It counts when both of these hold:
-  - **This build caused it.** The cause is in the builder's changes: cite the line in `git diff`.
+  - **This build caused it.** The cause is in the builder's changes (see above): cite the line.
     The bug either breaks something that worked before the build, like an existing test that now
     fails or a flow the feature didn't mean to change, or it's plainly wrong in new code: a
     crash, lost or corrupted data, or a result that the code, existing behavior, or the project's
@@ -79,15 +103,21 @@ Classify every failed check as exactly one of:
   spec didn't make. An ASSUMED Spec Issue in the change summary that turned out wrong
   belongs here when the spec left the point open.
 - **UNVERIFIED** — a Blocking Unknown that was REFUTED or NOT EXERCISED, or a check blocked by the
-  environment (missing credentials, hardware no automation could drive). More building won't
-  resolve it.
+  environment (missing credentials, hardware no automation could drive), or a bug you couldn't
+  attribute to the build or to the code before it. More building won't resolve it.
 
 When unsure between BUILD DEFECT and SPEC ISSUE, choose SPEC ISSUE. Only BUILD DEFECTs go back to
 the builder, so a defect needs a clear spec line behind it, or clear evidence that this build
 introduced it.
 
 If you find a bug that was already there before the build (its cause isn't in the builder's
-diff), don't count it as a failed check. List it under For the User as **PRE-EXISTING**.
+changes, or the test fails the same way on the pre-build code), don't count it as a failed check.
+List it under For the User as **PRE-EXISTING**.
+
+If you can't tell whether this build caused a bug, because the comparison couldn't run or the
+evidence points both ways, don't send it to the builder and don't call it PRE-EXISTING. Classify
+it as UNVERIFIED, say what you tried, and fail the check it came from. A failure nobody can
+explain shouldn't let the run pass.
 
 ## Verdict
 
@@ -136,7 +166,7 @@ Then these sections, in this order:
 
 `## Fix Requests` — one entry per BUILD DEFECT, numbered F-1, F-2, …, or "None." Each entry:
 - Basis: **Spec**, with the requirement it violates quoted or cited by section, or
-  **Introduced bug**, with what broke and the line in the builder's diff that caused it
+  **Introduced bug**, with what broke and the line in the builder's changes that caused it
 - Expected vs observed
 - Evidence: file/line, output, or log excerpt
 - Repro: the exact command(s) or steps that show the failure, runnable by the builder
@@ -145,7 +175,9 @@ Then these sections, in this order:
 what decision or action it needs. Or "None."
 
 `## Passing Checks` — a short list of every check that passed, with the command or evidence. A
-re-verify uses this as the regression baseline.
+re-verify uses this as the regression baseline. If the test suite passed with PRE-EXISTING
+failures, list those tests here under "Known failing before the build", with each failure
+message, so a re-verify doesn't mistake them for regressions.
 
 `## Manual Steps` — last, for anything requiring the user's own eyes. Convention: the user appends
 `## Manual Verification` to verification.md after completing those steps.
@@ -160,6 +192,10 @@ if there's no Headline):
 - **REGRESSION** — any check in the previous report's Passing Checks that fails now, with
   evidence
 - Any new failure that isn't a regression, classified as above
+
+A known-failing test that still fails the same way isn't a REGRESSION. Carry every PRE-EXISTING
+finding from the previous report into this report's For the User, after checking it still
+applies, since the final summary reads only this report.
 
 There are no more fix rounds after this one, so list new or remaining BUILD DEFECTs in Fix Requests
 for the user to act on.

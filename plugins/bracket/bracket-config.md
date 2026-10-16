@@ -62,6 +62,28 @@ Each run lives in `.claude/bracket-runs/<run-name>/`. Before 0.4.2, runs lived i
 .claude/bracket-runs && mv .claude/pipeline-runs/<run-name> .claude/bracket-runs/`). Don't move it
 without their confirmation, and don't read or write the old location otherwise.
 
+## Pre-build snapshot
+
+Before the run's first builder dispatch (spike-only or build mode), write
+`.claude/bracket-runs/<run-name>/pre-build.md` yourself, unless it already exists. Never rewrite
+it on a resume or fix round. The verifier uses it to tell the builder's changes apart from what was
+already in the working tree.
+
+```
+# Pre-build snapshot · <YYYY-MM-DD HH:MM>
+Base: <commit>
+HEAD: <commit>
+Untracked before build:
+<one path per line, or "none">
+```
+
+- **Base:** run `git stash create`. If it prints a commit, the working tree had uncommitted
+  changes, and that commit records them. It doesn't change the working tree, the index, or the
+  stash list. If it prints nothing, Base is the output of `git rev-parse HEAD`.
+- **Untracked before build:** the output of `git ls-files --others --exclude-standard`.
+- With no commits yet, write `Base: none (no commits)`. Outside a git repo, write
+  `Base: none (not a git repo)`. Leave out the other lines in both cases.
+
 ## Dispatching
 
 Pass `model` and `effort` explicitly from the confirmed pre-flight config on **every** dispatch,
@@ -117,7 +139,8 @@ yourself. Don't rely only on the status line. The verifier runs only on a finish
 
 If the user resolves a BLOCKED issue in conversation, add their decision to spec.md as a dated
 entry under `## Amendments` at the end (create the section if needed), naming the SI it resolves.
-That edit and **Keeping the record current** are the only times you write to a run file yourself.
+That edit, the **Pre-build snapshot**, and **Keeping the record current** are the only times you
+write to a run file yourself.
 Then dispatch the builder in build mode again, with spec.md, spike-results.md (if it exists), and
 the existing change-summary.md, so it resumes rather than starting over. It gets its own
 run-stats row. From there the run continues as normal: build gate, verifier, fix round, ending.
@@ -130,16 +153,16 @@ After the first verifier dispatch, read verification.md yourself. Don't rely onl
 line.
 
 - **The verdict is PASS, or `## Fix Requests` is "None.":** no fix round. Go to the final summary.
-  SPEC ISSUE and UNVERIFIED findings are the user's to decide, not the builder's, so an
-  UNCONFIRMED verdict never triggers a fix round.
+  SPEC ISSUE, UNVERIFIED, and PRE-EXISTING findings are the user's to decide, not the builder's,
+  so an UNCONFIRMED verdict never triggers a fix round.
 - **There is at least one fix request:** run exactly one fix round, even if `## For the User` also
   has findings. Those carry into the final summary.
   1. Dispatch the builder in **fix mode**, using the `builder` role's model and effort, with
      spec.md, spike-results.md (if it exists), change-summary.md, and the `## Fix Requests`
      section of verification.md. The builder appends `## Fix round 1` to change-summary.md.
   2. Dispatch the verifier in **re-verify mode**, using the `verifier` role's model and effort,
-     with spec.md, the updated change-summary.md, spike-results.md (if it exists), and
-     verification.md. It writes `.claude/bracket-runs/<run-name>/reverification.md`.
+     with spec.md, the updated change-summary.md, spike-results.md (if it exists), pre-build.md,
+     and verification.md. It writes `.claude/bracket-runs/<run-name>/reverification.md`.
      Keep verification.md as the first round's record.
   3. Stop. There is never a second fix round, whatever the re-verify verdict. Anything still
      failing, any REGRESSION, and any DECLINED fix request goes to the user in the final summary,
@@ -371,7 +394,9 @@ from the fix round) always reach the ending. Never leave them only in the file:
   verification.md to know what to do. Point to the file only for long command blocks or full
   detail, naming the section, e.g. "full commands in verification.md → Manual Steps 6–10".
 - Every builder Spec Issue (see above), verifier SPEC ISSUE, UNVERIFIED item, DECLINED or STILL
-  FAILING fix request, and REGRESSION becomes a step or sits under one. A decision lists the choices and your recommendation.
+  FAILING fix request, and REGRESSION becomes a step or sits under one. PRE-EXISTING bugs go in
+  one step, e.g. **Fix bugs that predate this build**, since they don't block this feature but
+  still need fixing. A decision lists the choices and your recommendation.
 - Leave out anything the user doesn't need to act on. Passing checks and the full file list stay
   in the run folder.
 - Always end with the review-and-commit step after a build, except after `BUILD BLOCKED` or

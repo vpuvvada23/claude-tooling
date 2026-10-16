@@ -2,6 +2,14 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.8.1
+- Before the first builder pass, the run saves `pre-build.md`: the commit the build started from (including your uncommitted changes, recorded with `git stash create`) and the files that were untracked then. The verifier uses it to tell the builder's changes from yours, including new files that plain `git diff` misses.
+- A failing existing test is always run against the code from before the build, in a temporary git worktree, instead of judging from the diff. It counts as PRE-EXISTING only if it runs there and fails the same way. If it can't run there, the cause is unclear.
+- When the verifier can't tell whether the build caused a bug, it goes to you as UNVERIFIED and the check fails. It isn't sent to the builder, and it isn't filed as PRE-EXISTING.
+- The test-suite check passes when its only failures are PRE-EXISTING. Those tests are recorded as known failures in the regression baseline, so a re-verify doesn't call them regressions.
+- PRE-EXISTING bugs now reach you: re-verify carries them forward, and the ending lists them as a step.
+- Worktree cleanup uses `git worktree remove --force` and `git worktree prune`, so test caches no longer leave a stale worktree behind.
+
 ## bracket 0.8.0
 - The verifier can send a bug back to the builder even when no spec line covers it, as long as this build introduced it and the right fix is obvious. Examples: an existing test that now fails, or a crash or data loss in the new code. The fix request is marked **Introduced bug** and cites the line in the builder's diff that caused it. If fixing it needs a choice, it still goes to you as a Spec Issue.
 - Bugs the verifier finds that were already there before the build no longer fail the run. They're listed for you as **PRE-EXISTING**.

@@ -106,7 +106,11 @@ Bracket is plain markdown prompts: no hooks, MCP servers, scripts, or
 dependencies. What its agents do in your project:
 
 - **Run shell commands** in your project to build and verify: `git status` and
-  `git check-ignore` (read-only), your project's own dev/build/test commands,
+  `git check-ignore` (read-only), `git stash create` before the build (it records
+  your uncommitted changes as a commit object and changes nothing in your working
+  tree, index, or stash list), a temporary `git worktree` outside your project
+  for comparing a failing test against the code from before the build (removed
+  afterward), your project's own dev/build/test commands,
   and, for spikes and verification, local automation such as iOS simulator
   tooling (`xcrun simctl`, `idb`), Android `adb`, Playwright or other headless
   browsers, `curl` against a local server, and throwaway scripts. Every command
@@ -114,7 +118,7 @@ dependencies. What its agents do in your project:
 - **Modify your code.** The builder implements the approved spec and, in the
   fix round, the verifier's fix requests. The verifier never modifies it.
 - **Write run files** to `.claude/bracket-runs/<run-name>/`: `idea.md`,
-  `plan-speed.md`, `plan-extensible.md`, `spec.md`,
+  `plan-speed.md`, `plan-extensible.md`, `spec.md`, `pre-build.md`,
   `spike-results.md`, `change-summary.md`, `verification.md`,
   `reverification.md` (after a fix round), `conflict.md` (if the judge halts),
   `run-stats.md`.

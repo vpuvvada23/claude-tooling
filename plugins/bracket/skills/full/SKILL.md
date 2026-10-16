@@ -78,8 +78,9 @@ Read spec.md first. If spec.md does not exist: STOP and tell the user. If spec.m
 partial or conflict-halted output (e.g. ends with an unresolved conflict summary): STOP and flag
 it to the user. Do not improvise.
 
-If the spec's `## Blocking Unknowns` section is anything other than "None.", dispatch the builder
-in **spike-only mode** with spec.md, using the `spike` role's model and effort. It writes:
+If the spec's `## Blocking Unknowns` section is anything other than "None.", first write
+pre-build.md per **Pre-build snapshot** in bracket-config.md. Then dispatch the builder in
+**spike-only mode** with spec.md, using the `spike` role's model and effort. It writes:
 - .claude/bracket-runs/<run-name>/spike-results.md
 
 Read the report yourself. Do not rely only on its overall verdict line.
@@ -99,6 +100,9 @@ A spike is not confirmed by a template, a placeholder findings doc, or an assump
 code. If a "CONFIRMED" entry doesn't show what was actually run and observed, treat it as NOT RUN.
 
 ### Step 7 — Dispatch the builder
+If pre-build.md doesn't exist yet (no spikes ran), write it first per **Pre-build snapshot** in
+bracket-config.md.
+
 Call builder in **build mode** with spec.md and, if it exists, spike-results.md, using the
 `builder` role's model and effort. The builder does not stage, commit, or push anything — it only
 writes a change summary, to:
@@ -110,7 +114,8 @@ invocation with state `BUILD BLOCKED` (or `BUILD ERROR`), with each BLOCKED issu
 the next steps. Otherwise, carry any ASSUMED issues through to the ending.
 
 ### Step 8 — Dispatch the verifier (only if the build gate passed)
-Call the verifier subagent in **verify mode** with spec.md, change-summary.md, and spike-results.md (if it exists).
+Call the verifier subagent in **verify mode** with spec.md, change-summary.md, spike-results.md (if it exists),
+and pre-build.md.
 It writes:
 - .claude/bracket-runs/<run-name>/verification.md
 
