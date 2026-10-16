@@ -23,8 +23,11 @@ Follow it throughout this skill.
 Parse the skill's arguments: the run name, any `--agents ...` overrides, and the feature idea.
 If the run name or idea is missing, ask for it.
 
-### Step 2 — Clarifying questions and pre-flight
-Before creating anything, review the idea for ambiguity — scope, edge cases, which existing
+### Step 2 — Size check, clarifying questions, and pre-flight
+First do the **Size check** in bracket-config.md. If the request is small, recommend skipping
+bracket and stop until the user chooses.
+
+Then, before creating anything, review the idea for ambiguity — scope, edge cases, which existing
 files/systems it touches, anything a planner would need to know to avoid guessing. Keep this
 tight — only ask what's actually needed to plan, not exhaustive discovery. If the idea is
 already clear and complete, say so.
@@ -40,8 +43,9 @@ If you inferred it rather than asked, state it so the user can correct it.
 
 In the same message, show the pre-flight agent config table (per bracket-config.md) with all
 six roles, since this skill can dispatch all of them. Below the table, note that spike only runs
-if the spec has Blocking Unknowns. Ask the user to confirm or change it. Do not dispatch anything
-until both are settled.
+if the spec has Blocking Unknowns. If the project targets physical hardware, ask the **device
+access** question too (see **Device access and answers you already have** in bracket-config.md).
+Ask the user to confirm or change it. Do not dispatch anything until all of it is settled.
 
 ### Step 3 — Create the run folder
 mkdir -p .claude/bracket-runs/<run-name>
@@ -78,9 +82,13 @@ Read spec.md first. If spec.md does not exist: STOP and tell the user. If spec.m
 partial or conflict-halted output (e.g. ends with an unresolved conflict summary): STOP and flag
 it to the user. Do not improvise.
 
-If the spec's `## Blocking Unknowns` section is anything other than "None.", first write
-pre-build.md per **Pre-build snapshot** in bracket-config.md. Then dispatch the builder in
-**spike-only mode** with spec.md, using the `spike` role's model and effort. It writes:
+If the spec's `## Blocking Unknowns` section is anything other than "None.":
+1. If any Blocking Unknown is `Needs: you`, or `Needs: device` without device access, ask the user
+   whether they've already observed its answer (see **Answers the user already has** in
+   bracket-config.md), and wait for the reply. Otherwise don't stop: go straight on.
+2. Write pre-build.md per **Pre-build snapshot** in bracket-config.md.
+3. Dispatch the builder in **spike-only mode** with spec.md, the device access answer, and any
+   answers the user gave, using the `spike` role's model and effort. It writes:
 - .claude/bracket-runs/<run-name>/spike-results.md
 
 Read the report yourself. Do not rely only on its overall verdict line.
@@ -115,7 +123,7 @@ the next steps. Otherwise, carry any ASSUMED issues through to the ending.
 
 ### Step 8 — Dispatch the verifier (only if the build gate passed)
 Call the verifier subagent in **verify mode** with spec.md, change-summary.md, spike-results.md (if it exists),
-and pre-build.md.
+pre-build.md, and the device access answer. Point it at spike-results.md's `## Reusable setup`.
 It writes:
 - .claude/bracket-runs/<run-name>/verification.md
 

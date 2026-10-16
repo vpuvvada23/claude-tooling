@@ -6,10 +6,10 @@ Shared by the bracket plugin's full, plan, and build-verify skills.
 
 | Role | Agent | Model | Effort |
 |---|---|---|---|
-| plan-speed | plan-speed | opus | high |
-| plan-extensible | plan-extensible | opus | high |
-| plan-judge | plan-judge | opus | xhigh |
-| spike | builder (spike-only mode) | opus | high |
+| plan-speed | plan-speed | opus | medium |
+| plan-extensible | plan-extensible | opus | medium |
+| plan-judge | plan-judge | opus | high |
+| spike | builder (spike-only mode) | sonnet | high |
 | builder | builder (build mode) | sonnet | high |
 | verifier | verifier | opus | high |
 
@@ -20,7 +20,7 @@ down to the nearest level the model does support.
 
 Each agent's frontmatter carries the same defaults, used only when the agent is dispatched
 outside these skills. Keep the two in sync. `spike` has no frontmatter of its own, because it's the
-builder agent dispatched with a different model.
+builder agent dispatched in spike-only mode.
 
 ## Per-run overrides
 
@@ -53,6 +53,52 @@ exactly three columns, Role | Model | Effort. Include only the roles this invoca
 Show it in the same message as any clarifying questions, and ask the user to confirm it or
 change it. Don't dispatch anything until they've confirmed. This is the user's only chance to
 change settings for the invocation.
+
+## Size check
+
+Before the pre-flight of `/bracket:full` or `/bracket:plan`, judge whether the request is small
+enough that bracket costs more than it gives. It's small when all of these hold:
+- it's a bug fix, a copy or style change, or a small UI tweak, not a new capability;
+- it touches a few files and adds no new data model, interface, or dependency;
+- it rests on nothing about the platform or outside systems that isn't already proven in the code.
+
+If it's small, say so in one or two sentences, with the reason, and recommend skipping bracket:
+build it directly in this session and run a quick smoke test. Then stop and let the user choose.
+Don't build it yourself, and don't start the run, until they answer. If they want bracket anyway,
+continue with the normal clarifying questions and pre-flight. When the request isn't small, say
+nothing about size.
+
+## Device access and answers you already have
+
+Long waits come from questions asked late. Ask everything that needs the user up front, in one
+message, so the run can go on without them.
+
+**Device access.** If the project targets physical hardware (a phone, a tablet, a board), ask once:
+may agents install development builds of this project on the user's device and drive this app
+there? Ask it at the pre-flight of every invocation that can dispatch a spike or verifier
+(`/bracket:full` and `/bracket:build-verify`). Record the answer in that invocation's run-stats
+section as a line under the heading, e.g. `Device access: yes (iPhone 13 Pro)`.
+- **Yes** covers installing and launching this project's builds, driving this app (UI tests,
+  `devicectl`, `adb`), and reading this app's own data and logs. It doesn't cover anything outside
+  the app: system settings, other apps, or the user's content outside the app (e.g. editing their
+  photo library). Those still need their own question.
+- Pass the answer to every spike and verifier dispatch. With yes, device checks are theirs to run.
+  With no, they go to Manual Steps.
+- Claude Code's own permission settings and safety checks still apply. If they block a device
+  step, the agent doesn't try to get around them: the step goes to Manual Steps, saying what was
+  blocked.
+
+**Answers the user already has.** Before the spike runs, look at the spec's Blocking Unknowns. For
+each one marked `Needs: you`, and each `Needs: device` one when device access is no, ask whether the
+user has already seen the answer themselves (e.g. "you've toggled Auto-pin on your phone before:
+did iOS show a dialog?"). A first-hand observation of the real behavior counts. A belief or a
+guess doesn't. Pass the answers to the spike, which records each one as `CONFIRMED (user
+observed)` or `REFUTED (user observed)` with the user's words as evidence, and doesn't run it.
+- Specs written before 0.9.0 have no `Needs:` line. Judge it from each BU's How to test.
+- In `/bracket:build-verify`, ask in the pre-flight message.
+- In `/bracket:full`, the spec doesn't exist at pre-flight. After the judge writes it, ask only if
+  some Blocking Unknown needs the user (as above). Otherwise go straight to the spike, so a run
+  whose unknowns agents can test doesn't stop.
 
 ## Run folder
 
@@ -95,6 +141,17 @@ reverification.md). Pass input files by path too, and let the agent read them, r
 their contents into the prompt. The agent writes the full report itself and returns only a short
 status, so you never write report files yourself.
 
+Pass the **device access** answer (see **Device access and answers you already have**) to every
+spike and verifier dispatch, and any answers the user already gave to the spike.
+
+**Spike handoff.** The spike leaves its working setup in place and lists it in spike-results.md
+under `## Reusable setup` (see the builder's spike-only mode). Point the verifier at that section
+on its dispatch. Use it yourself too if you run a device step by hand. Paths in it live in this
+session's scratchpad, so they're gone in a later session. Whoever uses it checks the paths exist
+and rebuilds what's missing.
+
+Run agents in the background, so their progress messages reach you (see **Progress**).
+
 ## Terminal output
 
 The user wants a clean terminal: what's running, then a summary they can dig into. Everything
@@ -103,13 +160,38 @@ detailed lives in the run folder.
 - **Never echo a report.** Don't paste an agent's report into the conversation, and don't write or
   rewrite a report file yourself. The only exception is **Keeping the record current**. When you
   need a report's contents (the spike gate, the fix round, the final summary), read the file.
-- **One line per stage.** Before each dispatch, print one line, e.g. `→ builder running (sonnet,
-  high)`. After it returns, print one line with its status, e.g. `✓ spec written · 3 Blocking
-  Unknowns` or `✗ spike gate blocked: BU-1 NOT RUN`. No other narration between dispatches.
+- **One line per stage.** Before each dispatch, print one line with the stage count, e.g.
+  `→ stage 4 of 5 · builder running (sonnet, high)`. After it returns, print one line with its
+  status, e.g. `✓ spec written · 3 Blocking Unknowns` or `✗ spike gate blocked: BU-1 NOT RUN`.
+  Between those, print only the agent's progress lines (see **Progress**). No other narration
+  between dispatches.
+- **Stage count.** The stages are the dispatches this invocation will make, with the two planners
+  counting as one stage, since they run together. Use the best count you have: in
+  `/bracket:full`, count the spike as a stage until the spec shows there are no Blocking Unknowns.
+  If the count changes (no spike, or a fix round adds a builder and a verifier stage), use the new
+  total from the next line on, e.g. `→ stage 6 of 7 · builder running (fix round)`.
 - **Quiet bookkeeping.** Make each run-stats.md update a single small edit, with no commentary
   around it. Don't re-pad earlier rows (see **Run stats**).
 - Questions to the user (clarifying questions, pre-flight, a halt that needs a decision) and the
   ending (see **Ending an invocation**) are the only longer messages.
+
+## Progress
+
+Each agent's prompt tells it to send a short progress message to the main session (`SendMessage`
+to `main`) as it passes roughly 25%, 50%, and 75% of its own work, for example
+`~50% · Simulator checks 1–8 of 16 done`. The percentage counts the agent's own steps, not time.
+When one arrives, print it as one indented line under the stage line, and nothing else:
+
+```
+→ stage 5 of 5 · verifier running (opus, high)
+  verifier · ~25% · build and unit tests passed
+  verifier · ~50% · Simulator checks 1–8 of 16 done
+  verifier · ~75% · all Simulator checks done, writing report
+✓ UNCONFIRMED · sim PASS · device NEEDS TESTING
+```
+
+Don't reply to the agent, and don't write progress anywhere else. If an agent sends none (for
+example it ran in the foreground), carry on as normal. Progress lines are a courtesy, not a check.
 
 ## Agent status line
 

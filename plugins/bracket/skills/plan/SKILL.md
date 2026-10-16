@@ -24,8 +24,11 @@ Follow it throughout this skill.
 Parse the skill's arguments: the run name, any `--agents ...` overrides, and the feature idea.
 If the run name or idea is missing, ask for it.
 
-### Step 2 — Clarifying questions and pre-flight
-Before creating anything, review the idea for ambiguity — scope, edge cases, which existing
+### Step 2 — Size check, clarifying questions, and pre-flight
+First do the **Size check** in bracket-config.md. If the request is small, recommend skipping
+bracket and stop until the user chooses.
+
+Then, before creating anything, review the idea for ambiguity — scope, edge cases, which existing
 files/systems it touches, anything a planner would need to know to avoid guessing. Keep this
 tight — only ask what's actually needed. If the idea is already clear and complete, say so.
 
@@ -79,7 +82,8 @@ further.
 End the invocation per **Ending an invocation** in bracket-config.md, with state `SPEC READY`:
 - "Why" becomes a one-to-two sentence summary of the chosen approach and the bias the judge applied.
 - No Coverage or Built lines.
-- Next steps: one step per Blocking Unknown that needs the user's hands-on involvement (what to
-  have ready, e.g. a physical device), any decision the spec flagged for the user, then reviewing
-  spec.md, then running `/bracket:build-verify <run-name>`. Note that the remaining Blocking
-  Unknowns run automatically as spikes and gate the build.
+- Next steps: one step per Blocking Unknown marked `Needs: device` or `Needs: you` (what to have
+  ready, e.g. a physical device, and that `/bracket:build-verify` will ask at its pre-flight about
+  device access and any answers they've already seen), any decision the spec flagged for the user,
+  then reviewing spec.md, then running `/bracket:build-verify <run-name>`. Note that the remaining
+  Blocking Unknowns run automatically as spikes and gate the build.

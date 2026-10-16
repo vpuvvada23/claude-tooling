@@ -2,6 +2,17 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.9.0
+Runs are faster and stop less often to wait for you.
+- **Size check.** Before `/bracket:full` or `/bracket:plan` starts, bracket checks whether the request is small: a bug fix, a copy change, or a small UI tweak with nothing unproven. If it is, bracket recommends building it directly with a quick smoke test, then waits for you to choose. Say you want bracket anyway and it carries on.
+- **Questions up front.** Pre-flight asks once whether agents may install development builds on your device and drive the app there. This app only: never system settings, other apps, or your content outside the app. Bracket also asks whether you've already seen the answer to a Blocking Unknown that needs you or your device. What you've observed counts as the result, and that spike doesn't run. In `/bracket:full`, this question comes after the judge and only when a Blocking Unknown needs you.
+- **Blocking Unknowns say where they run.** The judge marks each one `Needs: automation`, `device`, or `you`. It also makes an assumption a Blocking Unknown only when a wrong answer changes the approach.
+- **The spike stops at the pass criterion.** Caveats it notices get a short note for you to decide on, not an investigation.
+- **The verifier reuses the spike's setup.** The spike keeps its scratch build, test helpers, and the commands that worked, and lists them under `## Reusable setup` in spike-results.md. The verifier builds on them instead of starting over, and rebuilds them in a later session.
+- **Leaner specs with a tagged checklist.** The judge keeps the spec to what the builder and verifier act on, and tags each checklist item `[automate]`, `[code read]`, or `[device]`. The verifier drives the app only for `[automate]` items, and runs an extra environment (a second OS version, a Release build) only when the checklist lists it.
+- **Progress.** Each stage line shows `stage N of M`. Agents send progress at roughly 25%, 50%, and 75% of their own work, shown as indented lines under the stage. Nothing new is written to the run folder.
+- **New defaults.** Planners: opus / medium (was high). Judge: opus / high (was xhigh). Spike: sonnet / high (was opus). Builder and verifier are unchanged.
+
 ## bracket 0.8.2
 - Bugs that predate the build no longer make an environment show FAIL on the Coverage line. If they're its only failures, it shows PASS with a note, e.g. "Unit tests: PASS (2 failing before this build)". The verdict is unchanged: a run with only pre-existing failures is PASS.
 - The ending has a new **Pre-existing bugs** line under the summary, shown only when there are any, so you see them without reading down to the next steps.

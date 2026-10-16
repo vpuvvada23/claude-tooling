@@ -45,7 +45,11 @@ rests on no unverified external assumptions.
 Resolve the config per bracket-config.md (defaults, then `--agents`). Don't read settings from
 an existing run-stats.md, because it's a record only. Show the pre-flight agent config table with
 only the roles this skill will dispatch: spike (only if the spec has Blocking Unknowns), builder,
-and verifier. Ask the user to confirm or change it. Do not dispatch anything until they confirm.
+and verifier. In the same message, ask what **Device access and answers you already have** in
+bracket-config.md calls for: device access, if the project targets physical hardware, and whether
+the user has already observed the answer to any Blocking Unknown marked `Needs: you`, or
+`Needs: device` when device access is no. Ask the user to confirm or change the config. Do not
+dispatch anything until they confirm.
 Then start this invocation's section in the run stats record at
 .claude/bracket-runs/<run-name>/run-stats.md.
 
@@ -53,8 +57,8 @@ Then start this invocation's section in the run stats record at
 First write pre-build.md per **Pre-build snapshot** in bracket-config.md, so it records the code
 before any builder pass.
 
-Dispatch the builder in **spike-only mode** with spec.md, using the `spike` role's model and
-effort. It writes:
+Dispatch the builder in **spike-only mode** with spec.md, the device access answer, and any
+answers the user gave, using the `spike` role's model and effort. It writes:
 - .claude/bracket-runs/<run-name>/spike-results.md
 
 Read the report yourself. Do not rely only on its overall verdict line.
@@ -90,7 +94,7 @@ the next steps. Otherwise, carry any ASSUMED issues through to the ending.
 
 ### Step 6 — Dispatch the verifier (only if the build gate passed)
 Call the verifier subagent in **verify mode** with spec.md, change-summary.md, spike-results.md (if it exists),
-and pre-build.md.
+pre-build.md, and the device access answer. Point it at spike-results.md's `## Reusable setup`.
 It writes:
 - .claude/bracket-runs/<run-name>/verification.md
 

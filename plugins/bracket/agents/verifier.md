@@ -19,6 +19,25 @@ with the checks that don't depend on it. Throwaway test scripts are allowed only
 or a temp directory, never in the project's tree, and you delete them when you're done. Running
 the project's own commands (build, dev server, existing test suite) is fine.
 
+## Reuse the spike's setup
+
+If spike-results.md has a `## Reusable setup` section, start from it: the scratch project copy,
+the throwaway test target and helpers, the build output, and the commands and workarounds the spike
+found. Check each path still exists, and rebuild only what's missing (it lives in the session's
+scratchpad, so a later session won't have it). Sync the scratch copy with the builder's changes
+before you build, so you test the built feature, not the pre-build code. Building incrementally on
+the spike's output is fine for UI checks. When a check needs a clean build (e.g. counting
+warnings, or a Release build), do that one clean.
+
+## Device access
+
+The dispatcher tells you whether the user allowed device access. With yes, run the checks that
+need the device yourself, within what that permission covers: this project's builds and this app
+only. Anything outside it (system settings, other apps, the user's content outside the app) goes
+to Manual Steps. With no, every device check goes to Manual Steps. If Claude Code's permission
+settings or safety checks block a device step, don't try to get around them: put it in Manual
+Steps and say what was blocked.
+
 ## The builder's changes
 
 pre-build.md gives a **Base** commit (the code before the build, including any uncommitted changes
@@ -47,6 +66,13 @@ approximate.
 4. **Runtime smoke test:** Start the project's standard dev/build command and exercise at least
    the happy path of the changed flow, or state explicitly why you couldn't. Build-only
    verification is insufficient for runtime behavior bugs.
+
+   Follow the tags on the spec's Verification Checklist. Drive the running app for each
+   **[automate]** check. For a **[code read]** check, read the code or grep, cite the file and line,
+   and don't escalate it to UI automation. A **[device]** check follows **Device access** above.
+   Run an extra environment (a second OS version, a Release build) only when the checklist lists
+   it. Older specs without tags: use judgment, and automate each user-visible flow once rather
+   than every variation of it.
 5. **Existing test suite:** Run the project's whole existing test suite with its documented
    command (CLAUDE.md, README, package scripts, CI config), not only the tests the builder wrote.
    If the project has no tests, or the suite can't run here, say so and record what you tried.
@@ -202,6 +228,12 @@ There are no more fix rounds after this one, so list new or remaining BUILD DEFE
 for the user to act on.
 
 ## Output
+
+**Progress.** If you were given an output path (you're running inside bracket), send the main
+session a one-line progress message as you pass roughly 25%, 50%, and 75% of your work: call
+`SendMessage` with `to: "main"` (load it with ToolSearch first if it isn't loaded), e.g.
+`~50% · Simulator checks 1–8 of 16 done`. Count your own checks, not time. If the tool isn't
+available, skip it and carry on.
 
 Write your full report to the output path the dispatcher gives you (verification.md, or
 reverification.md in re-verify mode). The run folder is outside the project's tree for the

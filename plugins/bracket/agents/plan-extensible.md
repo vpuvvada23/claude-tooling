@@ -2,7 +2,7 @@
 name: plan-extensible
 description: Drafts an extensibility-focused implementation plan for a feature idea, optimizing for reusable patterns and future flexibility. Used as one of two competing planners in the bracket plugin.
 model: opus
-effort: high
+effort: medium
 ---
 
 You are a planning agent optimizing for EXTENSIBILITY. Given a feature idea, produce a plan that:
@@ -30,6 +30,12 @@ Do not write code. Do not implement anything. Plan only. Writing your plan to th
 the only file you write.
 
 ## Output
+
+**Progress.** If you were given an output path (you're running inside bracket), send the main
+session a one-line progress message as you pass roughly 25%, 50%, and 75% of your work: call
+`SendMessage` with `to: "main"` (load it with ToolSearch first if it isn't loaded), e.g.
+`~50% · codebase read, drafting the steps`. Count your own steps, not time. If the tool isn't
+available, skip it and carry on.
 
 Write your full report to the output path the dispatcher gives you. Then return only this status,
 at most three lines, and nothing else. Don't repeat the report in your reply:

@@ -27,8 +27,10 @@ idea ─┬─► plan-speed ──────┐
   every unverified, load-bearing assumption to a **Blocking Unknown**, with a
   concrete test and pass criterion.
 - **A spike gate.** Before the full build, the builder runs each Blocking
-  Unknown as a real experiment. If any aren't confirmed with observed evidence,
-  the run stops.
+  Unknown as a real experiment, and stops as soon as its pass criterion is
+  observed. If any aren't confirmed with observed evidence, the run stops. The
+  spike leaves its working setup (a scratch build, test helpers, the commands
+  that worked) for the verifier to reuse.
 - **A builder** implements the spec exactly and writes a change summary. It
   never stages, commits, or pushes. When the spec leaves a small detail open,
   it makes a minimal assumption and flags it. When the spec's approach won't
@@ -88,12 +90,38 @@ Restart Claude Code after installing. To update later, run
 
 You can also just ask: "run bracket for share-sheet: …".
 
+**When not to use it.** Bracket is built for features with real decisions and
+real unknowns. For a bug fix, a copy change, or a small UI tweak, it says so
+before starting and recommends building it directly with a quick smoke test.
+The choice is yours: say you want bracket anyway and it carries on.
+
 Before anything is dispatched, Bracket asks any clarifying questions and shows a
 **pre-flight agent config** (role, model, effort) for the agents it's about to
-run. Confirm it or change it there.
+run. Confirm it or change it there. Everything that needs you is asked up front,
+so the run doesn't stop halfway to wait for you:
 
-While it runs, the terminal stays quiet: one line per stage. Each agent writes
-its own report to the run folder and hands back a short status. Every command
+- **Device access.** If your project runs on physical hardware, Bracket asks
+  once whether agents may install development builds on your device and drive
+  the app there. Yes covers this app only: never system settings, other apps,
+  or your content outside the app. With no, device checks become manual steps.
+- **Answers you already have.** If a Blocking Unknown needs you or your device,
+  Bracket asks whether you've already seen the answer, e.g. "you've toggled
+  this before: did iOS show a dialog?" What you've observed counts as the
+  result, and that spike doesn't run.
+
+While it runs, the terminal stays quiet: one line per stage, with progress
+inside it:
+
+```
+→ stage 5 of 5 · verifier running (opus, high)
+  verifier · ~25% · build and unit tests passed
+  verifier · ~50% · Simulator checks 1–8 of 16 done
+  verifier · ~75% · all Simulator checks done, writing report
+✓ UNCONFIRMED · sim PASS · device NEEDS TESTING
+```
+
+The percentages count each agent's own steps, not time. Each agent writes its
+own report to the run folder and hands back a short status. Every command
 ends with a short summary (verdict, coverage, and why) followed by a numbered
 **Your next steps** list: what you need to do, in order, and why each step
 matters. For example, the device checks that would turn UNCONFIRMED into PASS,
@@ -132,16 +160,18 @@ Defaults (from [`bracket-config.md`](bracket-config.md)):
 
 | Role | Model | Effort |
 |---|---|---|
-| plan-speed, plan-extensible | `opus` | high |
-| plan-judge | `opus` | xhigh |
-| spike (builder, spike-only pass) | `opus` | high |
+| plan-speed, plan-extensible | `opus` | medium |
+| plan-judge | `opus` | high |
+| spike (builder, spike-only pass) | `sonnet` | high |
 | builder | `sonnet` | high |
 | verifier | `opus` | high |
 
 Models are family aliases, so they track the latest release in each family.
-The defaults favor quality over cost. A full run dispatches five or six agents,
-mostly on Opus, so it uses a significant share of your plan's usage limits, or
-API spend if you pay per token.
+The defaults put Opus where judgment matters (planning, the judge, and the
+verifier deciding who owns each failure) and Sonnet where the work is hands-on
+(the spike and the build). A full run dispatches five or six agents, so it still
+uses a significant share of your plan's usage limits, or API spend if you pay
+per token.
 
 Override per run with `--agents` (comma-separated `role=model[:effort]`, `all`
 sets every role, and specific roles win):
@@ -150,15 +180,18 @@ sets every role, and specific roles win):
 # Everything on Sonnet
 /bracket:full my-feature --agents all=sonnet <idea>
 
-# Sonnet everywhere, but keep Opus for the judge and the spike gate
-/bracket:full my-feature --agents all=sonnet,plan-judge=opus,spike=opus <idea>
+# Sonnet everywhere, but keep Opus for the judge and the verifier
+/bracket:full my-feature --agents all=sonnet,plan-judge=opus,verifier=opus <idea>
 
-# Keep the models, lower the effort
-/bracket:full my-feature --agents all=:medium <idea>
+# More thinking for a hard feature
+/bracket:full my-feature --agents plan-judge=:xhigh,spike=opus <idea>
 ```
 
-The judge and the spike pass are where a weaker result costs the most. Keep
-them strong before economizing anywhere else.
+The judge and the verifier are where a weaker result costs the most. Keep
+them strong before economizing anywhere else. Most of a run's time goes to
+builds, simulators, and tests rather than thinking, so the spec's checklist
+(what the verifier must drive versus what a code read covers) matters more for
+run time than effort does.
 
 `run-stats.md` records, for each command, the settings you confirmed and each
 dispatch's tokens, duration, and outcome. When a command finishes, it prints a
@@ -185,7 +218,11 @@ it has run.
   final summary leads with it.
 - **Cheap where it's safe, strong where judgment matters.** Once the spec has
   made the decisions, implementation is the most mechanical step, so the
-  builder runs on Sonnet.
+  builder runs on Sonnet. So does the spike, which runs experiments the judge
+  already designed.
+- **Ask early, not halfway.** Questions only you can answer, like device access
+  or something you've already seen on your phone, come at the start. A run that
+  stops halfway to wait for you costs your time as well as the agents'.
 - **The human owns git.** You review the spec, change summary, and
   verification report, then commit yourself.
 
@@ -198,8 +235,15 @@ it has run.
 - **Stats are approximate.** Token counts exclude the orchestrating session.
   Durations are summed per agent, so parallel planners count twice.
 - **Spikes are only as good as the available automation.** Some checks really
-  do need physical hardware. In that case the run halts and asks you rather than
-  guessing.
+  do need physical hardware. Without device access, the run halts and asks you
+  rather than guessing. Even with it, Claude Code's own permission settings and
+  safety checks can block a device step. Agents don't work around them: the step
+  becomes a manual one.
+- **Progress lines need background agents.** Agents send them as messages to
+  your session. An agent run in the foreground can't, so its stage shows only
+  the start and end lines.
+- **The spike's setup lasts one session.** It lives in the session's scratchpad.
+  If you continue a run in a new session, the verifier rebuilds it.
 - **One fix round only.** Build defects get one automatic fix round. Anything
   still failing after it, and every spec issue or unconfirmed assumption,
   stops for your decision.

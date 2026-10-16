@@ -17,6 +17,28 @@ stack offers (simulators, idb/simctl, adb, Playwright, curl, throwaway scripts).
 spike code outside the feature's real paths, or delete it afterwards. If the check as written
 can't run, try the closest executable alternative before giving up.
 
+The dispatcher tells you two more things:
+- **Device access** (yes or no). With yes, run `Needs: device` checks on the user's device
+  yourself, within what that permission covers: this project's builds and this app only. With no,
+  mark them NOT RUN and say they need the device.
+- **Answers the user already observed.** Record each as `CONFIRMED (user observed)` or `REFUTED
+  (user observed)`, quoting the user, and don't run that check.
+
+**Stop at the pass criterion.** The spike answers the gate's question and nothing more. Once a BU's
+pass criterion is observed (or clearly fails), move on. If you notice something odd along the way
+(a caveat, an edge case, a flaky step), note it in a few lines under that BU, with what you saw and
+what would test it, and don't investigate further. The user decides whether it's worth chasing.
+
+**Leave your setup for the verifier.** The verifier has to build and drive the same app, so don't
+tear down what it can reuse. Keep the scratch copy of the project, any throwaway UI-test target and
+helpers, and the build output (e.g. DerivedData) in your scratchpad. Delete throwaway simulators,
+emulators, and test accounts, and anything in the project's own tree. Then add a `## Reusable
+setup` section to the report:
+- the paths: the scratch project copy, test target and helpers, build output;
+- the commands that worked, exactly as run (build, install, launch, read the app's data or logs);
+- workarounds and dead ends, e.g. "`simctl privacy grant` doesn't apply on iOS 26.1: tap Allow in
+  the prompt instead".
+
 Open the spike report with a summary:
 - the overall verdict: ALL CONFIRMED, or GATE BLOCKED (list every BU id that isn't CONFIRMED);
 - a **Coverage** line, in the format described below;
@@ -96,6 +118,12 @@ assumption becomes an ASSUMED Spec Issue with the next free SI number: list it i
 and add it to `## Spec Issues` at the top, noting it came from the fix round.
 
 ## All modes
+
+**Progress.** If you were given an output path (you're running inside bracket), send the main
+session a one-line progress message as you pass roughly 25%, 50%, and 75% of your work: call
+`SendMessage` with `to: "main"` (load it with ToolSearch first if it isn't loaded), e.g.
+`~50% · 9 of 16 files done, starting the tutorial page`. Count your own steps (BUs, files, fix
+requests), not time. If the tool isn't available, skip it and carry on.
 
 Write your report to the output path the dispatcher gives you: spike-results.md in spike-only
 mode, change-summary.md in build mode. In fix mode, append to the existing change-summary.md. Then
