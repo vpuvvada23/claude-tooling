@@ -2,6 +2,11 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.8.0
+- The verifier can send a bug back to the builder even when no spec line covers it, as long as this build introduced it and the right fix is obvious. Examples: an existing test that now fails, or a crash or data loss in the new code. The fix request is marked **Introduced bug** and cites the line in the builder's diff that caused it. If fixing it needs a choice, it still goes to you as a Spec Issue.
+- Bugs the verifier finds that were already there before the build no longer fail the run. They're listed for you as **PRE-EXISTING**.
+- The verifier now always runs the project's whole existing test suite, not only the new tests. For each failing test, it checks whether this build caused it. When the diff doesn't make that clear, it runs the test against the code from before the build, in a temporary git worktree.
+
 ## bracket 0.7.0
 - The builder records every gap it hits in the spec as a numbered Spec Issue, at the top of change-summary.md. **ASSUMED** means it filled in a small detail and kept going. **BLOCKED** means the spec's approach won't work, or it needs a decision bigger than a small assumption, so the builder stops and leaves its partial work in place.
 - A blocked or failed build no longer goes on to verification. The run ends with state `BUILD BLOCKED` (or `BUILD ERROR`), and each blocker is a decision in Your next steps: amend the spec and resume, re-plan, or abandon. When you decide, your decision is added to spec.md under `## Amendments` and the builder picks up where it stopped.

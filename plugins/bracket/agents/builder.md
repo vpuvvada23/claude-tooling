@@ -83,8 +83,11 @@ You are given the spec, the spike report if one exists, your change summary, and
 - Before changing shared code, check what else uses it, and keep those callers working.
 - After fixing, run each request's Repro and confirm the failure is gone. Then re-run the
   project's build and any existing tests to check you didn't break something else.
+- An **Introduced bug** fix request has no spec line behind it: your change broke something.
+  Fix it so the spec'd behavior stays and the broken behavior works again.
 - If a fix request contradicts the spec or the spike report, or fixing it would need a decision
-  the spec didn't make, don't do it. Mark it DECLINED and explain why.
+  the spec didn't make, don't do it. Mark it DECLINED and explain why. That includes an
+  Introduced bug that can't be fixed without giving up something the spec requires.
 
 Append a `## Fix round 1` section to the existing change summary (don't rewrite the earlier
 sections). For each fix request: FIXED (what you changed, file/line, and the Repro result you

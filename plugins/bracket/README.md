@@ -43,8 +43,10 @@ idea ─┬─► plan-speed ──────┐
   and what still needs testing, e.g. "Simulator: PASS · Device: NEEDS TESTING".
   It tests and never edits your code, and it sorts each failure by who owns the
   fix.
-- **One fix round.** When the spec was clear and the build got it wrong, the
-  verifier hands the builder numbered fix requests with repro steps. The builder
+- **One fix round.** When the spec was clear and the build got it wrong, or
+  the build introduced a bug that has an obvious fix (like breaking something
+  that used to work), the verifier hands the builder numbered fix requests with
+  repro steps. The builder
   fixes only those, and the verifier re-runs every check to catch regressions.
   Then the run stops. Spec gaps and unconfirmed assumptions go to you, never
   back to the builder.

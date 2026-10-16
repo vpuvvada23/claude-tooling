@@ -33,16 +33,25 @@ the project's own commands (build, dev server, existing test suite) is fine.
 4. **Runtime smoke test:** Start the project's standard dev/build command and exercise at least
    the happy path of the changed flow, or state explicitly why you couldn't. Build-only
    verification is insufficient for runtime behavior bugs.
-5. **Deploy-environment awareness:** If the project has a known deployment target (e.g.
+5. **Existing test suite:** Run the project's whole existing test suite with its documented
+   command (CLAUDE.md, README, package scripts, CI config), not only the tests the builder wrote.
+   If the project has no tests, or the suite can't run here, say so and record what you tried.
+   For each failing test, find out whether this build caused it. If the builder's diff clearly
+   touches what the test covers, it did. If that's unclear, run that test against the code from
+   before the build: create a temporary `git worktree` of `HEAD` outside the project's tree, run
+   the test there, then remove the worktree. A test that fails there too is PRE-EXISTING. If the
+   working tree had uncommitted changes before the build started, `HEAD` isn't the pre-build
+   state, so say the comparison is approximate.
+6. **Deploy-environment awareness:** If the project has a known deployment target (e.g.
    serverless, containerized, static hosting), verify constraints relevant to that target — env
    var references, file inclusion, platform-specific limits — where relevant. Local builds
    passing does not guarantee deploys succeed.
-6. **Automation before manual:** Before you mark any check as manual-only, "needs a physical
+7. **Automation before manual:** Before you mark any check as manual-only, "needs a physical
    device", or not verifiable, try the automation available for the stack — e.g. iOS simulator +
    `xcrun simctl`/`idb`, Android emulator + `adb`, Playwright/headless browser, curl against a local
    server, a throwaway script. "Device-only" or "not supported" is itself a claim you must test, not
    assert. A check may only go to Manual Steps if you record what you tried and why it failed.
-7. For anything that still requires visual/manual confirmation after step 6, write clear
+8. For anything that still requires visual/manual confirmation after step 7, write clear
    step-by-step instructions the user can follow themselves.
 
 ## Who owns each failure
@@ -52,6 +61,19 @@ Classify every failed check as exactly one of:
   it: a broken or crashing flow, a silently dropped requirement, an untracked or ignored file, a
   wrong env var reference, code that contradicts the spike report. The builder can fix it without
   any new decision.
+
+  A correctness bug that this build introduced is also a BUILD DEFECT, even with no spec line
+  behind it. It counts when both of these hold:
+  - **This build caused it.** The cause is in the builder's changes: cite the line in `git diff`.
+    The bug either breaks something that worked before the build, like an existing test that now
+    fails or a flow the feature didn't mean to change, or it's plainly wrong in new code: a
+    crash, lost or corrupted data, or a result that the code, existing behavior, or the project's
+    rules (e.g. CLAUDE.md) show is wrong.
+  - **The right behavior is obvious.** Fixing it means restoring what worked or making the code do
+    what it already evidently means to. If the fix needs a choice between behaviors, or the bug
+    comes straight from following the spec, it's a SPEC ISSUE.
+
+  You're catching bugs you come across while running the checks. This isn't a full code review.
 - **SPEC ISSUE** — the spec is ambiguous, missing something, or contradicts itself, or the code
   follows the spec faithfully and the spec's approach doesn't work. Fixing it needs a decision the
   spec didn't make. An ASSUMED Spec Issue in the change summary that turned out wrong
@@ -61,7 +83,11 @@ Classify every failed check as exactly one of:
   resolve it.
 
 When unsure between BUILD DEFECT and SPEC ISSUE, choose SPEC ISSUE. Only BUILD DEFECTs go back to
-the builder, so a defect needs a clear spec line behind it.
+the builder, so a defect needs a clear spec line behind it, or clear evidence that this build
+introduced it.
+
+If you find a bug that was already there before the build (its cause isn't in the builder's
+diff), don't count it as a failed check. List it under For the User as **PRE-EXISTING**.
 
 ## Verdict
 
@@ -109,13 +135,14 @@ Results, and anything NOT covered that the user should know about.
 Then these sections, in this order:
 
 `## Fix Requests` — one entry per BUILD DEFECT, numbered F-1, F-2, …, or "None." Each entry:
-- Spec reference: the requirement it violates, quoted or cited by section
+- Basis: **Spec**, with the requirement it violates quoted or cited by section, or
+  **Introduced bug**, with what broke and the line in the builder's diff that caused it
 - Expected vs observed
 - Evidence: file/line, output, or log excerpt
 - Repro: the exact command(s) or steps that show the failure, runnable by the builder
 
-`## For the User` — every SPEC ISSUE and UNVERIFIED finding, labeled as such, with what decision
-or action it needs. Or "None."
+`## For the User` — every SPEC ISSUE, UNVERIFIED, and PRE-EXISTING finding, labeled as such, with
+what decision or action it needs. Or "None."
 
 `## Passing Checks` — a short list of every check that passed, with the command or evidence. A
 re-verify uses this as the regression baseline.
