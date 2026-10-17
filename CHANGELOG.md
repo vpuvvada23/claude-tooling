@@ -2,6 +2,16 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.9.1
+Fixes from reviewing a full run's files.
+- **A behavior check that didn't run makes the verdict UNCONFIRMED.** Before, only an unexercised Blocking Unknown did, so a run whose device upgrade check never ran still said PASS. Routine visual checks still don't count. The orchestrator now reports the verifier's verdict as written and doesn't relabel it.
+- **Spike corrections reach the spec.** When a spike only passes after changing something the spec said to do, it lists a spec correction, and bracket adds it to spec.md under `## Amendments` before the build. The spike outcome shows ` · n spec corrections`.
+- **The device is checked before its stage.** With device access yes, bracket checks the device is reachable before the spike or verifier, and tells you right away if it isn't. The agent sends a progress line asking you to wake it, runs device checks last, and tries once more instead of polling.
+- **Nothing is left running.** Agents stop their background processes before returning, and the orchestrator stops any left over before the ending.
+- **The judge checks the spec against itself.** Every test, grep and checklist gate must pass on code that follows the spec's own binding copy. The Step-by-step plan no longer includes committing or device checks, which aren't the builder's.
+- **One Spec Issue per decision.** The builder doesn't bundle choices, and says up front when an assumption changes what users see.
+- **Shorter verifier reports.** One `## Checks` table holds every check's evidence, and Passing Checks lists only check numbers and re-run commands.
+
 ## bracket 0.9.0
 Runs are faster and stop less often to wait for you.
 - **Size check.** Before `/bracket:full` or `/bracket:plan` starts, bracket checks whether the request is small: a bug fix, a copy change, or a small UI tweak with nothing unproven. If it is, bracket recommends building it directly with a quick smoke test, then waits for you to choose. Say you want bracket anyway and it carries on.

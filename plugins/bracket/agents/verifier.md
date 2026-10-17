@@ -38,6 +38,13 @@ to Manual Steps. With no, every device check goes to Manual Steps. If Claude Cod
 settings or safety checks block a device step, don't try to get around them: put it in Manual
 Steps and say what was blocked.
 
+**Check the device first.** With yes, check that the device is reachable before anything else,
+with the stack's quick check (e.g. `xcrun devicectl list devices`, `adb devices`). If it isn't
+reachable, send a progress message right away saying what the user should do, e.g.
+`device unreachable · unlock the iPhone and keep it on the Mac's Wi-Fi`. Then run the other checks
+and leave the device checks for last. Try the device again once before you write the report. Don't
+poll it in a loop. If it's still unreachable, the device checks go to Manual Steps.
+
 ## The builder's changes
 
 pre-build.md gives a **Base** commit (the code before the build, including any uncommitted changes
@@ -149,12 +156,22 @@ explain shouldn't let the run pass.
 
 Exactly one of:
 - **FAIL** — any check failed, or any Blocking Unknown was REFUTED.
-- **UNCONFIRMED** — nothing failed, but at least one Blocking Unknown was NOT EXERCISED. The feature
-  is structurally complete, but its core premise is still untested.
-- **PASS** — every check passed and every Blocking Unknown was CONFIRMED.
+- **UNCONFIRMED** — nothing failed, but at least one Blocking Unknown was NOT EXERCISED, or at
+  least one behavior check is NEEDS TESTING. The feature is structurally complete, but something it
+  depends on hasn't been seen working.
+- **PASS** — every check ran and passed, except routine visual checks, and every Blocking Unknown
+  was CONFIRMED.
+
+A **routine visual check** confirms how something looks when the behavior behind it is already
+proven elsewhere, e.g. "the icon reads PhotoPin on the home screen" after plutil showed the
+display name. A **behavior check** confirms that something works: data survives an upgrade, a flow
+completes, a background job runs. A behavior check that didn't run, because its environment was
+unreachable or it needs the user, is NEEDS TESTING, even when the platform normally behaves that
+way. "Standard behavior, not watched working" is UNCONFIRMED, not PASS.
 
 Never soften the verdict with qualifiers like "PASS-WITH-MANUAL-STEPS". Routine visual checks in
-Manual Steps don't change a PASS. An unexercised Blocking Unknown always makes it UNCONFIRMED.
+Manual Steps don't change a PASS. An unexercised Blocking Unknown or a behavior check still
+NEEDS TESTING always makes it UNCONFIRMED.
 
 You don't dispatch anyone. The orchestrating skill reads your Fix Requests and decides whether the
 builder gets a fix round.
@@ -186,8 +203,12 @@ Then add a `## Coverage` table with one row per environment and the columns Envi
 What ran there | Result | Still needed. "Still needed" names the exact checks or Manual Steps
 that would turn NEEDS TESTING into PASS.
 
-Then: What was tested, How (automated vs manual, including automation attempted and abandoned),
-Results, and anything NOT covered that the user should know about.
+Then `## Checks`: one table, with one row per check and the columns # | Check | Result |
+Evidence. List the Verification Checklist items first, then the standing checks above (git
+tracking, spec conformance, Blocking Unknowns, test suite, deploy environment). This table is the
+only place a check's evidence goes. Don't restate it in later sections. Under the table, add only
+what a row can't hold: automation attempted and abandoned, and anything NOT covered that the user
+should know about.
 
 Then these sections, in this order:
 
@@ -201,8 +222,9 @@ Then these sections, in this order:
 `## For the User` — every SPEC ISSUE, UNVERIFIED, and PRE-EXISTING finding, labeled as such, with
 what decision or action it needs. Or "None."
 
-`## Passing Checks` — a short list of every check that passed, with the command or evidence. A
-re-verify uses this as the regression baseline. If the test suite passed with PRE-EXISTING
+`## Passing Checks` — one line per check that passed: its number from the Checks table and the
+command that re-runs it. Don't repeat the evidence. A re-verify uses this as the regression
+baseline. If the test suite passed with PRE-EXISTING
 failures, list those tests here under "Known failing before the build", with each failure
 message, so a re-verify doesn't mistake them for regressions.
 
@@ -234,6 +256,10 @@ session a one-line progress message as you pass roughly 25%, 50%, and 75% of you
 `SendMessage` with `to: "main"` (load it with ToolSearch first if it isn't loaded), e.g.
 `~50% · Simulator checks 1–8 of 16 done`. Count your own checks, not time. If the tool isn't
 available, skip it and carry on.
+
+**Clean up before you return.** Stop every background process you started: polling loops, log
+streams, dev servers, monitors. Nothing you started should still be running after you return.
+The build output and scratch copies can stay, since they're files, not processes.
 
 Write your full report to the output path the dispatcher gives you (verification.md, or
 reverification.md in re-verify mode). The run folder is outside the project's tree for the

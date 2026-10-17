@@ -29,6 +29,20 @@ pass criterion is observed (or clearly fails), move on. If you notice something 
 (a caveat, an edge case, a flaky step), note it in a few lines under that BU, with what you saw and
 what would test it, and don't investigate further. The user decides whether it's worth chasing.
 
+**Spec corrections.** Sometimes the pass criterion is only met after you change something the spec
+told you to do, e.g. the spec says to reuse the built-in sample photos, but they're too old and
+you had to import fresh ones. The BU is still CONFIRMED, but the spec is now wrong on that point.
+Add a `Spec correction:` line under the BU: what the spec says (cite the section), what actually
+works, and the evidence. List every correction in the summary at the top, so the orchestrating
+session can amend the spec before the build. A caveat is something you noticed. A correction is
+something the builder must do differently.
+
+**Check the device first.** With device access yes and a `Needs: device` BU, check that the device
+is reachable before you start (e.g. `xcrun devicectl list devices`, `adb devices`). If it isn't,
+send a progress message right away saying what the user should do, e.g. `device unreachable ·
+unlock the iPhone and keep it on the Mac's Wi-Fi`. Then run the other BUs and try the device again
+once at the end. Don't poll it in a loop.
+
 **Leave your setup for the verifier.** The verifier has to build and drive the same app, so don't
 tear down what it can reuse. Keep the scratch copy of the project, any throwaway UI-test target and
 helpers, and the build output (e.g. DerivedData) in your scratchpad. Delete throwaway simulators,
@@ -41,6 +55,7 @@ setup` section to the report:
 
 Open the spike report with a summary:
 - the overall verdict: ALL CONFIRMED, or GATE BLOCKED (list every BU id that isn't CONFIRMED);
+- a `**Spec corrections:**` line: "None.", or one short entry per correction, with its BU id;
 - a **Coverage** line, in the format described below;
 - a status table with one row per BU and the environment each status was observed in.
 
@@ -63,7 +78,11 @@ device session), the orchestrating session rewrites the summary and the BU statu
 
 You are given an approved spec (and, if the spec has Blocking Unknowns, the spike report). Implement
 it exactly — do not deviate from the approach, add scope, or make architecture decisions the spec
-didn't cover.
+didn't cover. If the spec ends with `## Amendments`, each entry overrides the section it names.
+
+Steps the spec gives you that bracket doesn't let you do are out of scope: committing or pushing,
+and device or manual checks that belong to the verifier. Skip them without a Spec Issue and say so
+in one line of the change summary.
 
 When the spec doesn't tell you what to do, record a **Spec Issue** (SI-1, SI-2, …) as one of two kinds:
 - **ASSUMED:** the spec is ambiguous or missing a detail, and a small, easily reversed assumption
@@ -76,6 +95,10 @@ When the spec doesn't tell you what to do, record a **Spec Issue** (SI-1, SI-2, 
   - something you'd build on contradicts the spike report or was never confirmed. Build on what
     the spike report observed, e.g. the actual payload type it found, not the one the spec guessed.
     The ASSUMED allowance never covers Blocking Unknowns.
+
+One Spec Issue per decision. Don't bundle unrelated choices under one SI. If an assumption changes
+what users see (copy, layout, or an image that differs from the real UI), say so in its first
+sentence, so it isn't mistaken for housekeeping.
 
 On a BLOCKED issue, stop building. Don't build around a guess, and don't revert what you've
 already written. Record what's done and what isn't, so the build can be resumed after the user
@@ -125,13 +148,17 @@ session a one-line progress message as you pass roughly 25%, 50%, and 75% of you
 `~50% · 9 of 16 files done, starting the tutorial page`. Count your own steps (BUs, files, fix
 requests), not time. If the tool isn't available, skip it and carry on.
 
+**Clean up before you return.** Stop every background process you started: polling loops, log
+streams, dev servers, monitors. Nothing you started should still be running after you return.
+The setup you leave for the verifier is files (build output, scratch copies), not processes.
+
 Write your report to the output path the dispatcher gives you: spike-results.md in spike-only
 mode, change-summary.md in build mode. In fix mode, append to the existing change-summary.md. Then
 return only this status, at most three lines, and nothing else. Don't repeat the report in your
 reply:
 
 ```
-<ALL CONFIRMED | GATE BLOCKED (BU-n, …) | built | built · n ASSUMED | BLOCKED (SI-n, …) | fixed n/m | error> · <one-line headline>
+<ALL CONFIRMED (+ ` · n spec corrections`) | GATE BLOCKED (BU-n, …) | built | built · n ASSUMED | BLOCKED (SI-n, …) | fixed n/m | error> · <one-line headline>
 Coverage: <your Coverage line>        (spike-only mode only)
 Wrote <output path>
 ```

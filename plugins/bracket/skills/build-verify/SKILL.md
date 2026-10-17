@@ -57,12 +57,15 @@ Then start this invocation's section in the run stats record at
 First write pre-build.md per **Pre-build snapshot** in bracket-config.md, so it records the code
 before any builder pass.
 
-Dispatch the builder in **spike-only mode** with spec.md, the device access answer, and any
-answers the user gave, using the `spike` role's model and effort. It writes:
+If a BU is `Needs: device` and device access is yes, check the device first (see **Check the
+device before its stage** in bracket-config.md). Then dispatch the builder in **spike-only mode**
+with spec.md, the device access answer, and any answers the user gave, using the `spike` role's
+model and effort. It writes:
 - .claude/bracket-runs/<run-name>/spike-results.md
 
 Read the report yourself. Do not rely only on its overall verdict line.
-- **Every Blocking Unknown CONFIRMED** with observed evidence: continue to Step 5.
+- **Every Blocking Unknown CONFIRMED** with observed evidence: continue to Step 5. If the report
+  lists spec corrections, first add them to spec.md per **Spike corrections** in bracket-config.md.
 - **Any REFUTED or NOT RUN: STOP.** Do not dispatch the full build. End the invocation (per
   bracket-config.md) with state `GATE BLOCKED`. "Why" names each BU that isn't confirmed and what
   was observed. The next steps cover how to run each NOT RUN spike, the spec's "If it fails"
@@ -93,8 +96,9 @@ invocation with state `BUILD BLOCKED` (or `BUILD ERROR`), with each BLOCKED issu
 the next steps. Otherwise, carry any ASSUMED issues through to the ending.
 
 ### Step 6 — Dispatch the verifier (only if the build gate passed)
-Call the verifier subagent in **verify mode** with spec.md, change-summary.md, spike-results.md (if it exists),
-pre-build.md, and the device access answer. Point it at spike-results.md's `## Reusable setup`.
+If device access is yes, first check the device per **Check the device before its stage** in
+bracket-config.md. Then call the verifier subagent in **verify mode** with spec.md,
+change-summary.md, spike-results.md (if it exists), pre-build.md, and the device access answer. Point it at spike-results.md's `## Reusable setup`.
 It writes:
 - .claude/bracket-runs/<run-name>/verification.md
 

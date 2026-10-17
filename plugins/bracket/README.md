@@ -28,9 +28,11 @@ idea ─┬─► plan-speed ──────┐
   concrete test and pass criterion.
 - **A spike gate.** Before the full build, the builder runs each Blocking
   Unknown as a real experiment, and stops as soon as its pass criterion is
-  observed. If any aren't confirmed with observed evidence, the run stops. The
-  spike leaves its working setup (a scratch build, test helpers, the commands
-  that worked) for the verifier to reuse.
+  observed. If any aren't confirmed with observed evidence, the run stops. If a
+  spike only passed after doing something the spec didn't say, that correction
+  is added to the spec before the build. The spike leaves its working setup (a
+  scratch build, test helpers, the commands that worked) for the verifier to
+  reuse.
 - **A builder** implements the spec exactly and writes a change summary. It
   never stages, commits, or pushes. When the spec leaves a small detail open,
   it makes a minimal assumption and flags it. When the spec's approach won't
@@ -40,8 +42,9 @@ idea ─┬─► plan-speed ──────┐
 - **A verifier** checks git tracking, spec conformance, and runtime behavior.
   It must try automation (simulators, headless browsers, curl) before calling
   anything "manual only". Its verdict is **PASS**, **FAIL**, or
-  **UNCONFIRMED**. UNCONFIRMED means the code is complete but its core premise
-  is still untested. A Coverage line under the verdict says what passed where
+  **UNCONFIRMED**. UNCONFIRMED means the code is complete but something it
+  depends on hasn't been seen working: a Blocking Unknown, or a behavior check
+  that couldn't run, like an upgrade on a device that was asleep. A Coverage line under the verdict says what passed where
   and what still needs testing, e.g. "Simulator: PASS · Device: NEEDS TESTING".
   It tests and never edits your code, and it sorts each failure by who owns the
   fix.

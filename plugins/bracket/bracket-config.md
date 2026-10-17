@@ -87,6 +87,12 @@ section as a line under the heading, e.g. `Device access: yes (iPhone 13 Pro)`.
 - Claude Code's own permission settings and safety checks still apply. If they block a device
   step, the agent doesn't try to get around them: the step goes to Manual Steps, saying what was
   blocked.
+- **Check the device before its stage.** With yes, right before dispatching a verifier, or a spike
+  with a `Needs: device` BU, run the stack's quick reachability check (e.g. `xcrun devicectl list
+  devices`, `adb devices`). If the device isn't reachable, print one line saying what to do, e.g.
+  `⚠ iPhone unreachable: unlock it and keep it on the Mac's Wi-Fi. Device checks run last.`, and
+  dispatch anyway. Don't wait for a reply, since the user may be away. The agent checks again
+  itself and leaves device checks for last.
 
 **Answers the user already has.** Before the spike runs, look at the spec's Blocking Unknowns. For
 each one marked `Needs: you`, and each `Needs: device` one when device access is no, ask whether the
@@ -206,6 +212,25 @@ Wrote <output path>
 If the agent couldn't write the file, it says so in the status. Then stop and tell the user. Don't
 write the file yourself from the agent's reply.
 
+## Spike corrections
+
+A spike can confirm a BU only after changing something the spec said to do. spike-results.md lists
+these on its `**Spec corrections:**` line. If it names any, add each to spec.md before the build,
+as a dated entry under `## Amendments` at the end (create the section if needed):
+
+```
+## Amendments
+
+### 2026-10-16 · from spike BU-1
+Final approach › Screenshots said to use the built-in sample photos. They're dated 2009–2018, so
+the 30-day auto-pin rule skips them. The script must `simctl addmedia` fresh images first.
+See spike-results.md › BU-1.
+```
+
+Keep each entry to what the builder must do differently, and point to the evidence. Don't rewrite
+the sections it corrects. The after-dispatch line names the corrections, e.g.
+`✓ spike gate cleared · BU-1 CONFIRMED · 1 spec correction, added to spec.md`.
+
 ## Build gate
 
 After the build-mode builder returns, read the `## Spec Issues` section of change-summary.md
@@ -221,8 +246,8 @@ yourself. Don't rely only on the status line. The verifier runs only on a finish
 
 If the user resolves a BLOCKED issue in conversation, add their decision to spec.md as a dated
 entry under `## Amendments` at the end (create the section if needed), naming the SI it resolves.
-That edit, the **Pre-build snapshot**, and **Keeping the record current** are the only times you
-write to a run file yourself.
+That edit, **Spike corrections**, the **Pre-build snapshot**, and **Keeping the record current**
+are the only times you write to a run file yourself.
 Then dispatch the builder in build mode again, with spec.md, spike-results.md (if it exists), and
 the existing change-summary.md, so it resumes rather than starting over. It gets its own
 run-stats row. From there the run continues as normal: build gate, verifier, fix round, ending.
@@ -310,7 +335,7 @@ convert them.
   | plan-speed      | `plan written`, `error`                                             |
   | plan-extensible | `plan written`, `error`                                             |
   | plan-judge      | `spec written`, `halted: conflict`, `error`                         |
-  | spike           | `ALL CONFIRMED`, `GATE BLOCKED (BU-n, …)` + coverage, `error`       |
+  | spike           | `ALL CONFIRMED` (+ ` · n spec corrections`), `GATE BLOCKED (BU-n, …)` + coverage, `error` |
   | builder         | `built`, `built · n ASSUMED`, `BLOCKED (SI-n, …)`, `fixed n/m` (+ ` · n ASSUMED`), `error` |
   | verifier        | `PASS`, `UNCONFIRMED`, `FAIL` + coverage, `error`                   |
 
@@ -348,6 +373,11 @@ the checks needed, with one status each:
 Environments are whatever the stack uses, for example build, unit tests, simulator, device,
 local server, staging, or production deploy. The verdict rules stay the same. Coverage explains
 the verdict and never replaces it.
+
+Report the verifier's verdict as written, in run-stats.md, the Current state block and the ending.
+Don't relabel it ("report says PASS, but effectively UNCONFIRMED"). If it looks inconsistent with
+its own Coverage line, keep the verdict and flag the inconsistency in the ending's "Why", so it can
+be fixed in the verifier's rules.
 
 ## Keeping the record current
 
@@ -412,6 +442,11 @@ the wall-clock time. The orchestrating session's own tokens are not included. Pr
 only if the user asks for it.
 
 ## Ending an invocation
+
+**Clean up first.** Before the ending, check for background work this invocation left running:
+your own background shells and monitors, and any an agent left behind (e.g. a device poll). Stop
+them with TaskStop, unless the user asked for one to keep running, so nothing from the run is
+still going after it ends.
 
 Every invocation ends with the same shape, whether it finished or halted early (a judge conflict,
 a blocked spike gate). It's short, and it ends with **what the user does next**, so they never

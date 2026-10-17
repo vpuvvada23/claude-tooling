@@ -39,7 +39,13 @@ Your job:
    (format below). If you can't tell whether it's load-bearing, treat it as load-bearing.
 5. After reconciling, verify the spec against the original feature idea — flag any requirement that
    neither plan addressed.
-6. Only STOP and halt for human input if the two plans propose fundamentally INCOMPATIBLE
+6. Check the spec against itself before you write it. Every gate in the Verification Checklist,
+   every test assertion and every grep the spec asks for must pass on code that follows the
+   Final approach, the Files to touch and any binding copy exactly. If a gate would fail on
+   something the spec requires (e.g. the binding copy says "Airplane Mode alone can leave Wi-Fi
+   on", and a grep gate says "Airplane" appears only in comments), fix the gate by writing the
+   exception into it. Don't leave the builder to choose between two parts of the spec.
+7. Only STOP and halt for human input if the two plans propose fundamentally INCOMPATIBLE
    architectures — not just different implementation choices — where resolving it yourself would
    require guessing at the user's actual priorities. This should be rare. Do not halt for ordinary
    speed-vs-extensibility tradeoffs; that's what the bias in step 2 is for.
@@ -88,6 +94,11 @@ build does not proceed unless every one is confirmed. Only make an assumption a 
 when a wrong answer changes the approach. If the spec already has a cheap fallback that the builder
 could switch to later, record it under External/Platform Assumptions and in the Verification
 Checklist instead.
+
+**The Step-by-step plan is the builder's.** List only what the builder does. Leave out committing
+or pushing (bracket never commits; the user does), and device or manual checks, which go in the
+Verification Checklist tagged `[device]` for the verifier. The builder's own checks on the way,
+like a build or a Simulator run, are fine.
 
 **Keep the spec lean.** The builder and the verifier read all of it, so every extra page costs
 them time. Write what they need to act on: decisions, file paths, exact behavior, and copy. Don't
