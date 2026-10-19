@@ -34,20 +34,6 @@ not a GitHub user. Restart Claude Code after installing.
 plugin from `/plugin` (or `claude plugin update bracket@vinnie-tools` in a
 shell), and restart.
 
-### Upgrading from dev-pipeline
-
-Bracket was called `dev-pipeline` before v0.4.0. The commands are now
-`/bracket:full`, `/bracket:plan`, and `/bracket:build-verify`. Run folders moved
-from `.claude/pipeline-runs/` to `.claude/bracket-runs/` in v0.4.2. Commands
-offer to move an old run's folder when you name it. Update your `.gitignore`
-to match. To switch:
-
-```
-claude plugin uninstall dev-pipeline@vinnie-tools
-claude plugin marketplace update vinnie-tools
-claude plugin install bracket@vinnie-tools
-```
-
 ## License
 
 [MIT](LICENSE). An independent project, not affiliated with or endorsed by

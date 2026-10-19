@@ -100,8 +100,8 @@ The choice is yours: say you want bracket anyway and it carries on.
 
 Before anything is dispatched, Bracket asks any clarifying questions and shows a
 **pre-flight agent config** (role, model, effort) for the agents it's about to
-run. Confirm it or change it there. Everything that needs you is asked up front,
-so the run doesn't stop halfway to wait for you:
+run. Confirm it or change it there. Questions that need you come as early as
+possible, so the run doesn't stop halfway to wait for you:
 
 - **Device access.** If your project runs on physical hardware, Bracket asks
   once whether agents may install development builds on your device and drive
@@ -110,7 +110,9 @@ so the run doesn't stop halfway to wait for you:
 - **Answers you already have.** If a Blocking Unknown needs you or your device,
   Bracket asks whether you've already seen the answer, e.g. "you've toggled
   this before: did iOS show a dialog?" What you've observed counts as the
-  result, and that spike doesn't run.
+  result, and that spike doesn't run. `/bracket:build-verify` asks this at
+  pre-flight. `/bracket:full` asks right after the judge writes the spec, and
+  only when a Blocking Unknown needs you.
 
 While it runs, the terminal stays quiet: one line per stage, with progress
 inside it:
@@ -153,9 +155,12 @@ dependencies. What its agents do in your project:
   `spike-results.md`, `change-summary.md`, `verification.md`,
   `reverification.md` (after a fix round), `conflict.md` (if the judge halts),
   `run-stats.md`.
-- **Never** stages, commits, or pushes, and never sends data to any service
-  other than the Claude models your Claude Code session already uses. It reads
-  no credentials or environment variables.
+- **Use your session's tools.** Agents have the same tools as your session, so
+  a planner may search the web or fetch docs to check a platform assumption,
+  and the verifier's commands (installing dependencies, `curl`, your test
+  suite) can reach the network or read your project's config the way they
+  normally would. Bracket itself makes no network calls.
+- **Never** stages, commits, or pushes.
 
 ## Models, effort, and cost
 
@@ -172,9 +177,9 @@ Defaults (from [`bracket-config.md`](bracket-config.md)):
 Models are family aliases, so they track the latest release in each family.
 The defaults put Opus where judgment matters (planning, the judge, and the
 verifier deciding who owns each failure) and Sonnet where the work is hands-on
-(the spike and the build). A full run dispatches five or six agents, so it still
-uses a significant share of your plan's usage limits, or API spend if you pay
-per token.
+(the spike and the build). A full run dispatches six agents (five with no
+spike, eight with a fix round), so it still uses a significant share of your
+plan's usage limits, or API spend if you pay per token.
 
 Override per run with `--agents` (comma-separated `role=model[:effort]`, `all`
 sets every role, and specific roles win):

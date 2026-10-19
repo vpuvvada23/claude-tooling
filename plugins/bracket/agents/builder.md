@@ -30,8 +30,8 @@ pass criterion is observed (or clearly fails), move on. If you notice something 
 what would test it, and don't investigate further. The user decides whether it's worth chasing.
 
 **Spec corrections.** Sometimes the pass criterion is only met after you change something the spec
-told you to do, e.g. the spec says to reuse the built-in sample photos, but they're too old and
-you had to import fresh ones. The BU is still CONFIRMED, but the spec is now wrong on that point.
+told you to do, e.g. the spec says to reuse the existing seed data, but it's too old for the new
+filter and you had to create fresh records. The BU is still CONFIRMED, but the spec is now wrong on that point.
 Add a `Spec correction:` line under the BU: what the spec says (cite the section), what actually
 works, and the evidence. List every correction in the summary at the top, so the orchestrating
 session can amend the spec before the build. A caveat is something you noticed. A correction is

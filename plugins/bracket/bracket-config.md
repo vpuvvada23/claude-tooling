@@ -77,7 +77,7 @@ message, so the run can go on without them.
 may agents install development builds of this project on the user's device and drive this app
 there? Ask it at the pre-flight of every invocation that can dispatch a spike or verifier
 (`/bracket:full` and `/bracket:build-verify`). Record the answer in that invocation's run-stats
-section as a line under the heading, e.g. `Device access: yes (iPhone 13 Pro)`.
+section as a line under the heading, e.g. `Device access: yes (iPhone)`.
 - **Yes** covers installing and launching this project's builds, driving this app (UI tests,
   `devicectl`, `adb`), and reading this app's own data and logs. It doesn't cover anything outside
   the app: system settings, other apps, or the user's content outside the app (e.g. editing their
@@ -96,8 +96,8 @@ section as a line under the heading, e.g. `Device access: yes (iPhone 13 Pro)`.
 
 **Answers the user already has.** Before the spike runs, look at the spec's Blocking Unknowns. For
 each one marked `Needs: you`, and each `Needs: device` one when device access is no, ask whether the
-user has already seen the answer themselves (e.g. "you've toggled Auto-pin on your phone before:
-did iOS show a dialog?"). A first-hand observation of the real behavior counts. A belief or a
+user has already seen the answer themselves (e.g. "you've turned this setting on before: did iOS
+show a permission dialog?"). A first-hand observation of the real behavior counts. A belief or a
 guess doesn't. Pass the answers to the spike, which records each one as `CONFIRMED (user
 observed)` or `REFUTED (user observed)` with the user's words as evidence, and doesn't run it.
 - Specs written before 0.9.0 have no `Needs:` line. Judge it from each BU's How to test.
@@ -222,8 +222,8 @@ as a dated entry under `## Amendments` at the end (create the section if needed)
 ## Amendments
 
 ### 2026-10-16 · from spike BU-1
-Final approach › Screenshots said to use the built-in sample photos. They're dated 2009–2018, so
-the 30-day auto-pin rule skips them. The script must `simctl addmedia` fresh images first.
+Final approach › Tests said to reuse the existing seed data. Its records are years old, so the
+new 30-day filter hides them. The tests must create fresh records first.
 See spike-results.md › BU-1.
 ```
 
