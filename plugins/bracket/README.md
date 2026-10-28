@@ -109,7 +109,7 @@ possible, so the run doesn't stop halfway to wait for you:
   or your content outside the app. With no, device checks become manual steps.
 - **Answers you already have.** If a Blocking Unknown needs you or your device,
   Bracket asks whether you've already seen the answer, e.g. "you've toggled
-  this before: did iOS show a dialog?" What you've observed counts as the
+  this before: did the app show a prompt?" What you've observed counts as the
   result, and that spike doesn't run. `/bracket:build-verify` asks this at
   pre-flight. `/bracket:full` asks right after the judge writes the spec, and
   only when a Blocking Unknown needs you.
@@ -159,7 +159,8 @@ dependencies. What its agents do in your project:
   a planner may search the web or fetch docs to check a platform assumption,
   and the verifier's commands (installing dependencies, `curl`, your test
   suite) can reach the network or read your project's config the way they
-  normally would. Bracket itself makes no network calls.
+  normally would. Bracket adds no network access beyond what those tools
+  already have.
 - **Never** stages, commits, or pushes.
 
 ## Models, effort, and cost
@@ -178,8 +179,8 @@ Models are family aliases, so they track the latest release in each family.
 The defaults put Opus where judgment matters (planning, the judge, and the
 verifier deciding who owns each failure) and Sonnet where the work is hands-on
 (the spike and the build). A full run dispatches six agents (five with no
-spike, eight with a fix round), so it still uses a significant share of your
-plan's usage limits, or API spend if you pay per token.
+spike), plus two more if a fix round runs, so it still uses a significant share
+of your plan's usage limits, or API spend if you pay per token.
 
 Override per run with `--agents` (comma-separated `role=model[:effort]`, `all`
 sets every role, and specific roles win):
@@ -228,9 +229,11 @@ it has run.
   made the decisions, implementation is the most mechanical step, so the
   builder runs on Sonnet. So does the spike, which runs experiments the judge
   already designed.
-- **Ask early, not halfway.** Questions only you can answer, like device access
-  or something you've already seen on your phone, come at the start. A run that
-  stops halfway to wait for you costs your time as well as the agents'.
+- **Ask early, not halfway.** Questions only you can answer, like device access,
+  come at the start. In `/bracket:full`, a question about something you've
+  already seen waits until the judge has written the spec, and is asked only if
+  a Blocking Unknown needs you, before anything is built. A run that stops
+  halfway to wait for you costs your time as well as the agents'.
 - **The human owns git.** You review the spec, change summary, and
   verification report, then commit yourself.
 

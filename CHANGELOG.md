@@ -2,6 +2,14 @@
 
 The plugin was named `dev-pipeline` before 0.4.0.
 
+## bracket 0.9.2
+Docs and examples made accurate for the public release.
+- **The privacy section no longer promises what bracket can't enforce.** Agents use your session's tools, so a planner may search the web and the verifier's commands can reach the network or read your project's config. The earlier "reads no credentials or environment variables" claim is withdrawn.
+- **The README says when questions are asked.** In `/bracket:full`, a question about something you've already seen comes after the judge writes the spec, and only if a Blocking Unknown needs you.
+- **Agent count corrected.** A full run dispatches six agents (five with no spike), plus two if a fix round runs.
+- **Removed the `dev-pipeline` migration.** Commands no longer offer to move run folders from `.claude/pipeline-runs/`. That path only existed in the private pre-release.
+- Examples are no longer tied to one app or to iOS.
+
 ## bracket 0.9.1
 Fixes from reviewing a full run's files.
 - **A behavior check that didn't run makes the verdict UNCONFIRMED.** Before, only an unexercised Blocking Unknown did, so a run whose device upgrade check never ran still said PASS. Routine visual checks still don't count. The orchestrator now reports the verifier's verdict as written and doesn't relabel it.

@@ -96,8 +96,8 @@ section as a line under the heading, e.g. `Device access: yes (iPhone)`.
 
 **Answers the user already has.** Before the spike runs, look at the spec's Blocking Unknowns. For
 each one marked `Needs: you`, and each `Needs: device` one when device access is no, ask whether the
-user has already seen the answer themselves (e.g. "you've turned this setting on before: did iOS
-show a permission dialog?"). A first-hand observation of the real behavior counts. A belief or a
+user has already seen the answer themselves (e.g. "you've turned this setting on before: did the
+app show a permission prompt?"). A first-hand observation of the real behavior counts. A belief or a
 guess doesn't. Pass the answers to the spike, which records each one as `CONFIRMED (user
 observed)` or `REFUTED (user observed)` with the user's words as evidence, and doesn't run it.
 - Specs written before 0.9.0 have no `Needs:` line. Judge it from each BU's How to test.
@@ -108,11 +108,7 @@ observed)` or `REFUTED (user observed)` with the user's words as evidence, and d
 
 ## Run folder
 
-Each run lives in `.claude/bracket-runs/<run-name>/`. Before 0.4.2, runs lived in
-`.claude/pipeline-runs/`. If the run name's folder isn't in `.claude/bracket-runs/` but exists at
-`.claude/pipeline-runs/<run-name>/`, tell the user and offer to move it (`mkdir -p
-.claude/bracket-runs && mv .claude/pipeline-runs/<run-name> .claude/bracket-runs/`). Don't move it
-without their confirmation, and don't read or write the old location otherwise.
+Each run lives in `.claude/bracket-runs/<run-name>/`.
 
 ## Pre-build snapshot
 

@@ -23,8 +23,7 @@ Follow it throughout this skill.
 
 ### Step 1 — Get the run name and overrides
 Parse the skill's arguments: the run name and any `--agents ...` overrides. If the run name is
-missing, ask for it. It must correspond to an existing folder at .claude/bracket-runs/<run-name>/ (see "Run
-folder" in bracket-config.md for runs still under the old .claude/pipeline-runs/).
+missing, ask for it. It must correspond to an existing folder at .claude/bracket-runs/<run-name>/.
 
 ### Step 2 — Load and validate the spec
 Read .claude/bracket-runs/<run-name>/spec.md.

@@ -163,9 +163,9 @@ Exactly one of:
   was CONFIRMED.
 
 A **routine visual check** confirms how something looks when the behavior behind it is already
-proven elsewhere, e.g. "the app's name shows under its home-screen icon" after plutil showed
-the display name. A **behavior check** confirms that something works: data survives an upgrade, a flow
-completes, a background job runs. A behavior check that didn't run, because its environment was
+proven elsewhere, e.g. "the app's name shows under its home-screen icon" after the built
+app's metadata showed the display name. A **behavior check** confirms that something works: data
+survives an upgrade, a flow completes, a background job runs. A behavior check that didn't run, because its environment was
 unreachable or it needs the user, is NEEDS TESTING, even when the platform normally behaves that
 way. "Standard behavior, not watched working" is UNCONFIRMED, not PASS.
 
